@@ -1,5 +1,4 @@
 from flask import Flask, render_template
-import os
 
 app = Flask(__name__)
 
@@ -12,9 +11,11 @@ def home():
 def about():
     return render_template("about_us.html")
 
+
 @app.route("/team")
 def team():
     return render_template("team.html")
+
 
 @app.route("/products")
 def products():
@@ -34,7 +35,4 @@ def gallery():
 
 
 if __name__ == "__main__":
-    # Read PORT from environment (App Runner / other PaaS set this)
-    port = int(os.environ.get("PORT", 8000))
-    # Listen on all interfaces so AWS can reach it
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(debug=True)

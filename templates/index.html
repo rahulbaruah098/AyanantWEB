@@ -593,6 +593,782 @@
 
 </style> <!-- The moving Gamusa "road" --> <div class="track" aria-hidden="true"></div> </section>
 
+<section id="awards-slider" aria-labelledby="awards-title">
+  <style>
+    /* ===== Scoped tokens (inherit your site vars) ===== */
+    #awards-slider{
+      --bg:#f6f4ed;
+      --ink:#37392f;
+      --muted:#988e87;
+      --red:#b33f36;
+      --radius:16px;
+      --maxw:1200px;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+      color:var(--ink);
+      background:var(--bg);
+      position:relative;
+      overflow:clip;
+    }
+    #awards-slider .wrap{ width:min(100%,var(--maxw)); margin-inline:auto; padding:clamp(34px,6vw,72px) clamp(16px,4vw,28px); }
+
+    /* ===== Header ===== */
+    #awards-slider .eyebrow{
+      display:inline-flex; align-items:center; gap:10px;
+      font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      color:var(--muted); font-size:12px; margin-bottom:8px;
+    }
+    #awards-slider .eyebrow::before,#awards-slider .eyebrow::after{
+      content:""; width:20px; height:2px; background:currentColor; opacity:.3;
+    }
+    #awards-slider .title{
+      font-family:"Bebas Neue", Inter, ui-sans-serif;
+      font-size:clamp(32px,6vw,68px); letter-spacing:1px; line-height:.95; text-transform:uppercase;
+      text-shadow:0 2px 0 rgba(255,255,255,.45);
+      margin:0 0 8px;
+    }
+    #awards-slider .sub{ color:var(--muted); max-width:60ch; font-size:15px; margin:0 0 16px; }
+
+    /* ===== Carousel (frameless) ===== */
+    #awards-slider .slider{ position:relative; margin-top:12px; background:transparent; border:none; box-shadow:none; padding:0; }
+    #awards-slider .track{
+      display:grid; grid-auto-flow:column; grid-auto-columns:100%;
+      overflow-x:auto; overscroll-behavior-x:contain;
+      scroll-snap-type:x mandatory; scroll-behavior:smooth;
+      -webkit-overflow-scrolling:touch;
+      gap:0; scrollbar-width:none;
+      cursor:grab;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action:pan-x pinch-zoom; /* smoother swipes on mobile */
+    }
+    #awards-slider .track.grabbing{ cursor:grabbing; }
+    #awards-slider .track::-webkit-scrollbar{ display:none; }
+
+    #awards-slider .slide{ position:relative; scroll-snap-align:center; outline:none; }
+    #awards-slider figure{
+      margin:0; background:transparent; border:none; overflow:hidden;
+      display:grid; grid-template-rows:auto auto; gap:0; border-radius:var(--radius);
+    }
+    #awards-slider .media{
+      aspect-ratio:16 / 9; background:#fff; display:grid; place-items:center; overflow:hidden; border-radius:var(--radius);
+    }
+    #awards-slider .media img{
+      width:100%; height:100%; object-fit:cover; object-position:center;
+      transition:transform .45s ease, filter .45s ease; display:block;
+      pointer-events:none; /* prevent image from intercepting drags */
+    }
+    #awards-slider figure:hover .media img{ transform:scale(1.02); }
+    #awards-slider figcaption{ padding:12px 8px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    #awards-slider .cap-left{ display:grid; gap:4px; }
+    #awards-slider .cap-title{
+      font-family:"Bebas Neue", Inter, ui-sans-serif;
+      font-size:clamp(20px,2.6vw,28px); letter-spacing:.6px; line-height:1; text-transform:uppercase;
+    }
+    #awards-slider .cap-sub{ color:var(--muted); font-size:13px; }
+
+    /* ===== Controls ===== */
+    #awards-slider .ctrl{
+      position:absolute; inset:auto 8px 50% 8px; translate:0 50%;
+      display:flex; justify-content:space-between; pointer-events:none;
+    }
+    #awards-slider .btn{
+      pointer-events:auto; border:1px solid #111; background:#fff; color:#111;
+      width:44px; height:44px; border-radius:999px; display:grid; place-items:center;
+      box-shadow:0 10px 24px rgba(0,0,0,.10);
+      transition:transform .12s ease, filter .12s ease;
+    }
+    #awards-slider .btn:hover{ transform:translateY(-1px); filter:saturate(1.05); }
+    #awards-slider .btn:active{ transform:none; }
+    #awards-slider .btn svg{ width:18px; height:18px; }
+
+    /* Dots */
+    #awards-slider .dots{ display:flex; gap:8px; justify-content:center; align-items:center; padding:12px 0 6px; }
+    #awards-slider .dot{
+      width:8px; height:8px; border-radius:999px; background:#cfc9c2; border:0; padding:0; cursor:pointer;
+      transition:transform .12s ease, background .2s ease;
+    }
+    #awards-slider .dot[aria-current="true"]{ background:var(--red); transform:scale(1.4); }
+
+    /* CTA (if you later add one) */
+    #awards-slider .cta{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      margin-top:14px; background:var(--red); color:#fff; text-decoration:none;
+      padding:12px 18px; border-radius:999px; font-weight:900; letter-spacing:.04em;
+      box-shadow:0 6px 16px rgba(179,63,54,.28);
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    #awards-slider .cta:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(179,63,54,.30); }
+    #awards-slider .cta:active{ transform:translateY(0); }
+
+    /* Reveal helper */
+    #awards-slider .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+    #awards-slider .in{ opacity:1; transform:none; }
+
+    /* Responsive */
+    @media (max-width:980px){ #awards-slider .ctrl{ inset:auto 6px 50% 6px; } }
+    @media (max-width:720px){
+      #awards-slider .wrap{ padding-bottom:28px; }
+      #awards-slider .btn{ width:40px; height:40px; }
+      #awards-slider .media{ aspect-ratio:4 / 3; }
+    }
+  </style>
+
+  <div class="wrap">
+    <header class="reveal">
+      <h2 id="awards-title" class="title">AWARDS,&nbsp;RECOGNITION AND PARTICIPATION</h2>
+    </header>
+
+    <div class="slider reveal">
+      <!-- Controls -->
+      <div class="ctrl" aria-hidden="true">
+        <button class="btn prev" type="button" aria-label="Previous">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="btn next" type="button" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+
+      <!-- Track (3 slides only) -->
+      <div class="track" role="region" aria-roledescription="carousel" aria-label="Awards and recognitions" tabindex="0">
+        <!-- Slide 1 -->
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="1 of 4">
+          <figure>
+            <div class="media"><img src="static/certificateayanant.png" alt="Award / recognition 1"></div>
+            <figcaption>
+              <div class="cap-left">
+                <div class="cap-title">Officially registered with Startup India.</div>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+        <!-- Slide 2 -->
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="2 of 4">
+          <figure>
+            <div class="media"><img src="static/gallery/03.jpg" alt="Award / recognition 2"></div>
+            <figcaption>
+              <div class="cap-left">
+                <div class="cap-title">Fueling Growth with NEATEHUB’s RKVY Grant.</div>
+                
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+        <!-- Slide 3 -->
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="3 of 4">
+          <figure>
+            <div class="media"><img src="static/gallery/04.jpg" alt="Award / recognition 3"></div>
+            <figcaption>
+              <div class="cap-left">
+                <div class="cap-title">Engaged in Shaping Ideas at NE Conclave 2.0</div>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+
+
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="4 of 4">
+  <figure>
+    <div class="media">
+      <img src="static/gallery/gallery10.jpg" alt="Award / recognition 4">
+    </div>
+    <figcaption>
+      <div class="cap-left">
+        <div class="cap-title">Nagaland Meet: Linking Opportunities.</div>
+        
+      </div>
+    </figcaption>
+  </figure>
+</div>
+      </div><!-- /.track -->
+
+      <!-- Slide 4 -->
+
+
+      <!-- Dots -->
+      <div class="dots" role="tablist" aria-label="Slides"></div>
+    </div><!-- /.slider -->
+  </div><!-- /.wrap -->
+
+  <script>
+    // Reveal-on-scroll
+    (function(){
+      const root=document.getElementById('awards-slider');
+      if(!root) return;
+      const els=[...root.querySelectorAll('.reveal')];
+      if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('in')); return; }
+      const io=new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+      },{threshold:.12});
+      els.forEach(el=>io.observe(el));
+    })();
+
+    // Carousel with faster autoplay + drag/swipe
+    (function(){
+      const sec   = document.getElementById('awards-slider');
+      if(!sec) return;
+      const track = sec.querySelector('.track');
+      const slides= [...sec.querySelectorAll('.slide')];
+      const prev  = sec.querySelector('.prev');
+      const next  = sec.querySelector('.next');
+      const dotsWrap = sec.querySelector('.dots');
+
+      if(!track || !slides.length || !dotsWrap) return;
+
+      // Build dots dynamically
+      dotsWrap.innerHTML = slides.map((_,i)=>
+        `<button class="dot" role="tab" aria-selected="${i===0?'true':'false'}"
+                 aria-current="${i===0?'true':'false'}" title="Slide ${i+1}"></button>`
+      ).join('');
+      const dots = [...dotsWrap.querySelectorAll('.dot')];
+
+      const total = slides.length;
+      slides.forEach((s,i)=> s.setAttribute('aria-label', `${i+1} of ${total}`));
+
+      let idx=0, lock=false;
+
+      function go(i){
+        idx = Math.max(0, Math.min(total-1, i));
+        track.scrollTo({ left: slides[idx].offsetLeft - track.offsetLeft, behavior:'smooth' });
+        updateDots();
+      }
+      function updateDots(){
+        dots.forEach((d,i)=>{
+          const on=i===idx;
+          d.setAttribute('aria-current', on ? 'true' : 'false');
+          d.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+      }
+      function nearestIndex(){
+        const x=track.scrollLeft, w=track.clientWidth;
+        return Math.round(x / w);
+      }
+
+      // Buttons
+      prev.addEventListener('click', ()=>{ stop(); go(idx-1); startSoon(); });
+      next.addEventListener('click', ()=>{ stop(); go(idx+1); startSoon(); });
+      dots.forEach((d,i)=> d.addEventListener('click', ()=>{ stop(); go(i); startSoon(); }));
+
+      // Keyboard
+      track.addEventListener('keydown', (e)=>{
+        if(e.key==='ArrowRight'){ stop(); go(idx+1); startSoon(); }
+        if(e.key==='ArrowLeft'){  stop(); go(idx-1); startSoon(); }
+      });
+
+      // Sync on scroll end (debounced)
+      track.addEventListener('scroll', ()=>{
+        if(lock) return;
+        lock=true; setTimeout(()=>{ idx=nearestIndex(); updateDots(); lock=false; }, 110);
+      }, {passive:true});
+
+      /* ===== Drag / Swipe support ===== */
+      let isDown=false, startX=0, startScroll=0;
+      const THRESHOLD = 60; // px to consider a swipe to next/prev
+
+      function getClientX(e){
+        if(e.clientX != null) return e.clientX;
+        if(e.touches && e.touches[0]) return e.touches[0].clientX;
+        if(e.changedTouches && e.changedTouches[0]) return e.changedTouches[0].clientX;
+        return 0;
+      }
+
+      function onPointerDown(e){
+        isDown=true;
+        track.classList.add('grabbing');
+        startX = getClientX(e);
+        startScroll = track.scrollLeft;
+        stop();
+      }
+      function onPointerMove(e){
+        if(!isDown) return;
+        const x = getClientX(e);
+        const dx = startX - x;
+        track.scrollLeft = startScroll + dx; // drag the track
+      }
+      function onPointerUp(e){
+        if(!isDown) return;
+        isDown=false; track.classList.remove('grabbing');
+        const x = getClientX(e);
+        const dx = startX - x;
+        if(Math.abs(dx) > THRESHOLD){
+          if(dx > 0) go(idx+1); else go(idx-1);
+        }else{
+          // Snap to nearest slide
+          go(nearestIndex());
+        }
+        startSoon();
+      }
+
+      // Mouse / touch events
+      track.addEventListener('pointerdown', onPointerDown);
+      window.addEventListener('pointermove', onPointerMove, {passive:true});
+      window.addEventListener('pointerup', onPointerUp, {passive:true});
+      track.addEventListener('touchstart', onPointerDown, {passive:true});
+      track.addEventListener('touchmove', onPointerMove, {passive:true});
+      track.addEventListener('touchend', onPointerUp, {passive:true});
+
+      // Prevent accidental text selection while dragging (safari)
+      track.addEventListener('dragstart', e=>e.preventDefault());
+
+      /* ===== Faster autoplay (≈2.8s) and smarter resume ===== */
+      const autoPlayAllowed = !matchMedia('(prefers-reduced-motion: reduce)').matches && total > 1;
+      let timer=null, resumeTimer=null;
+
+      function start(){
+        if(timer || !autoPlayAllowed) return;
+        timer = setTimeout(function tick(){
+          go((idx+1) % total);
+          timer = setTimeout(tick, 2800);
+        }, 2800);
+      }
+      function stop(){
+        if(timer){ clearTimeout(timer); timer=null; }
+        if(resumeTimer){ clearTimeout(resumeTimer); resumeTimer=null; }
+      }
+      function startSoon(){
+        if(!autoPlayAllowed) return;
+        if(resumeTimer) clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(()=>{ start(); }, 900);
+      }
+
+      // Pause when hovering/touching the track
+      track.addEventListener('pointerenter', stop);
+      track.addEventListener('pointerleave', startSoon);
+
+      // Init
+      updateDots();
+      start();
+    })();
+  </script>
+</section>
+
+<section id="gamusa-road"> <style> /* Assamese Gamusa "road" — uses your real Gamusa artwork as a repeating strip */ /* 🔁 Replace the example URL below with your ONLINE image link (PNG/JPG/SVG) of the pattern */ #gamusa-road{ --img: url("static/gamu.jpeg"); }
+#gamusa-road{position:relative;margin:0;padding:0}
+#gamusa-road .lane{
+  position:relative; width:100%; height:56px; overflow:hidden;
+  /* red rails like woven borders */
+  background:
+    linear-gradient(#b30000,#b30000) top/100% 3px no-repeat,
+    linear-gradient(#b30000,#b30000) bottom/100% 3px no-repeat,
+    #fff;
+  box-shadow: inset 0 8px 16px rgba(0,0,0,.04), inset 0 -8px 16px rgba(0,0,0,.04);
+}
+
+/* The moving Gamusa artwork */
+#gamusa-road .lane::after{
+  content:""; position:absolute; left:0; right:0; top:3px; bottom:3px;
+  background-image: var(--img);
+  background-repeat: repeat-x;        /* continuous like a road */
+  background-position: 0 50%;
+  background-size: auto 100%;         /* scale image height to fit strip */
+  animation: gamusa-move 12s linear infinite;
+  /* optional subtle fabric texture overlay */
+  mix-blend-mode: normal;
+}
+
+/* gentle edge fade so the loop feels seamless on some images */
+#gamusa-road .lane::before{
+  content:""; position:absolute; inset:3px 0;
+  pointer-events:none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  background: rgba(255,255,255,.0);
+}
+
+@keyframes gamusa-move{
+  from { background-position: 0 50%; }
+  to   { background-position: -1200px 50%; } /* adjust speed by changing distance/time */
+}
+
+/* Slimmer on mobile if you want */
+@media (max-width:720px){
+  #gamusa-road .lane{ height:44px; }
+}
+
+</style> <!-- Moving Gamusa road (change --img in the style above to your actual online link) --> <div class="lane" aria-hidden="true"></div> </section>
+
+</style> <!-- The moving Gamusa "road" --> <div class="track" aria-hidden="true"></div> </section>
+
+
+<section id="ne-locals" aria-labelledby="ne-locals-title">
+  <style>
+    /* ===== Scoped tokens (inherit your site vars) ===== */
+    #ne-locals{
+      --bg:#f6f4ed;
+      --ink:#37392f;
+      --muted:#988e87;
+      --red:#b33f36;
+      --radius:16px;
+      --maxw:1200px;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+      color:var(--ink);
+      background:var(--bg);
+      position:relative;
+      overflow:clip;
+    }
+    #ne-locals .wrap{ width:min(100%,var(--maxw)); margin-inline:auto; padding:clamp(34px,6vw,72px) clamp(16px,4vw,28px); }
+
+    /* ===== Header ===== */
+    #ne-locals .eyebrow{
+      display:inline-flex; align-items:center; gap:10px;
+      font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      color:var(--muted); font-size:12px; margin-bottom:8px;
+    }
+    #ne-locals .eyebrow::before,#ne-locals .eyebrow::after{
+      content:""; width:20px; height:2px; background:currentColor; opacity:.3;
+    }
+    #ne-locals .title{
+      font-family:"Bebas Neue", Inter, ui-sans-serif;
+      font-size:clamp(32px,6vw,68px); letter-spacing:1px; line-height:.95; text-transform:uppercase;
+      text-shadow:0 2px 0 rgba(255,255,255,.45);
+      margin:0 0 8px;
+    }
+    #ne-locals .sub{ color:var(--muted); max-width:60ch; font-size:15px; margin:0 0 16px; }
+
+    /* ===== Carousel (frameless) ===== */
+    #ne-locals .slider{ position:relative; margin-top:12px; background:transparent; border:none; box-shadow:none; padding:0; }
+    #ne-locals .track{
+      display:grid; grid-auto-flow:column; grid-auto-columns:100%;
+      overflow-x:auto; overscroll-behavior-x:contain;
+      scroll-snap-type:x mandatory; scroll-behavior:smooth;
+      -webkit-overflow-scrolling:touch;
+      gap:0; scrollbar-width:none;
+      cursor:grab;
+      user-select:none;
+      -webkit-user-select:none;
+      touch-action:pan-x pinch-zoom; /* smoother swipes on mobile */
+    }
+    #ne-locals .track.grabbing{ cursor:grabbing; }
+    #ne-locals .track::-webkit-scrollbar{ display:none; }
+
+    #ne-locals .slide{ position:relative; scroll-snap-align:center; outline:none; }
+    #ne-locals figure{
+      margin:0; background:transparent; border:none; overflow:hidden;
+      display:grid; grid-template-rows:auto auto; gap:0; border-radius:var(--radius);
+    }
+    #ne-locals .media{
+      aspect-ratio:16 / 9; background:#fff; display:grid; place-items:center; overflow:hidden; border-radius:var(--radius);
+    }
+    #ne-locals .media img{
+      width:100%; height:100%; object-fit:cover; object-position:center;
+      transition:transform .45s ease, filter .45s ease; display:block;
+      pointer-events:none; /* prevent image from intercepting drags */
+    }
+    #ne-locals figure:hover .media img{ transform:scale(1.02); }
+    #ne-locals figcaption{ padding:12px 8px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    #ne-locals .cap-left{ display:grid; gap:4px; }
+    #ne-locals .cap-title{
+      font-family:"Bebas Neue", Inter, ui-sans-serif;
+      font-size:clamp(20px,2.6vw,28px); letter-spacing:.6px; line-height:1; text-transform:uppercase;
+    }
+    #ne-locals .cap-sub{ color:var(--muted); font-size:13px; }
+
+    /* ===== Controls ===== */
+    #ne-locals .ctrl{
+      position:absolute; inset:auto 8px 50% 8px; translate:0 50%;
+      display:flex; justify-content:space-between; pointer-events:none;
+    }
+    #ne-locals .btn{
+      pointer-events:auto; border:1px solid #111; background:#fff; color:#111;
+      width:44px; height:44px; border-radius:999px; display:grid; place-items:center;
+      box-shadow:0 10px 24px rgba(0,0,0,.10);
+      transition:transform .12s ease, filter .12s ease;
+    }
+    #ne-locals .btn:hover{ transform:translateY(-1px); filter:saturate(1.05); }
+    #ne-locals .btn:active{ transform:none; }
+    #ne-locals .btn svg{ width:18px; height:18px; }
+
+    /* Dots */
+    #ne-locals .dots{ display:flex; gap:8px; justify-content:center; align-items:center; padding:12px 0 6px; }
+    #ne-locals .dot{
+      width:8px; height:8px; border-radius:999px; background:#cfc9c2; border:0; padding:0; cursor:pointer;
+      transition:transform .12s ease, background .2s ease;
+    }
+    #ne-locals .dot[aria-current="true"]{ background:var(--red); transform:scale(1.4); }
+
+    /* CTA */
+    #ne-locals .cta{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      margin-top:14px; background:var(--red); color:#fff; text-decoration:none;
+      padding:12px 18px; border-radius:999px; font-weight:900; letter-spacing:.04em;
+      box-shadow:0 6px 16px rgba(179,63,54,.28);
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    #ne-locals .cta:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(179,63,54,.30); }
+    #ne-locals .cta:active{ transform:translateY(0); }
+
+    /* Reveal helper */
+    #ne-locals .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+    #ne-locals .in{ opacity:1; transform:none; }
+
+    /* Responsive */
+    @media (max-width:980px){ #ne-locals .ctrl{ inset:auto 6px 50% 6px; } }
+    @media (max-width:720px){
+      #ne-locals .wrap{ padding-bottom:28px; }
+      #ne-locals .btn{ width:40px; height:40px; }
+      #ne-locals .media{ aspect-ratio:4 / 3; }
+    }
+  </style>
+
+  <div class="wrap">
+    <header class="reveal">
+      <div class="eyebrow" aria-hidden="true">OUR STORE</div>
+      <h2 id="ne-locals-title" class="title">NE&nbsp;LOCALS</h2>
+      <p class="sub">A quick peek inside our NE&nbsp;LOCALS store</p>
+    </header>
+
+    <div class="slider reveal">
+      <!-- Controls -->
+      <div class="ctrl" aria-hidden="true">
+        <button class="btn prev" type="button" aria-label="Previous">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="btn next" type="button" aria-label="Next">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+
+      <!-- Track -->
+      <div class="track" role="region" aria-roledescription="carousel" aria-label="NE LOCALS store gallery" tabindex="0">
+        <!-- Slide 1 -->
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="1 of 6">
+          <figure>
+            <div class="media"><img src="static/store1.jpg" alt="NE LOCALS storefront — exterior view"></div>
+            <figcaption><div class="cap-left"><div class="cap-title">Storefront</div><div class="cap-sub">Exterior — welcome to NE LOCALS</div></div></figcaption>
+          </figure>
+        </div>
+        <!-- Slide 2 -->
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="2 of 6">
+          <figure>
+            <div class="media"><img src="static/store5.jpg" alt="Interior racks with local products"></div>
+            <figcaption><div class="cap-left"><div class="cap-title">Inside Aisles</div><div class="cap-sub">Curated local products</div></div></figcaption>
+          </figure>
+        </div>
+        <!-- Slide 3 -->
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="3 of 6">
+          <figure>
+            <div class="media"><img src="static/store4.jpg" alt="Checkout counter at NE LOCALS"></div>
+            <figcaption><div class="cap-left"><div class="cap-title">Checkout</div><div class="cap-sub">Fast & friendly service</div></div></figcaption>
+          </figure>
+        </div>
+        <!-- Slide 4 -->
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="4 of 6">
+          <figure>
+            <div class="media"><img src="static/store3.jpg" alt="Fresh produce section"></div>
+            <figcaption><div class="cap-left"><div class="cap-title">Fresh Produce</div><div class="cap-sub">From trusted NE growers</div></div></figcaption>
+          </figure>
+        </div>
+        <!-- Slide 5 -->
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="5 of 6">
+          <figure>
+            <div class="media"><img src="static/store2.jpg" alt="Spices & staples display"></div>
+            <figcaption><div class="cap-left"><div class="cap-title">EVERYDAY ESSENTIALS</div><div class="cap-sub">Now Accessible</div></div></figcaption>
+          </figure>
+        </div>
+        <!-- Slide 6 -->
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="6 of 6">
+          <figure>
+            <div class="media"><img src="static/store6.jpg" alt="Additional store image"></div>
+            <figcaption><div class="cap-left"><div class="cap-title">Store's Building Upfront</div><div class="cap-sub">The Building</div></div></figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- Dots -->
+      <div class="dots" role="tablist" aria-label="Slides"></div>
+    </div>
+
+    <!-- Optional CTA -->
+    <a class="cta magnet" href="/products">Explore NE-LOCALS Products</a>
+  </div>
+
+  <script>
+    // Reveal-on-scroll
+    (function(){
+      const root=document.getElementById('ne-locals');
+      if(!root) return;
+      const els=[...root.querySelectorAll('.reveal')];
+      if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('in')); return; }
+      const io=new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+      },{threshold:.12});
+      els.forEach(el=>io.observe(el));
+    })();
+
+    // Carousel with faster autoplay + drag/swipe
+    (function(){
+      const sec   = document.getElementById('ne-locals');
+      const track = sec.querySelector('.track');
+      const slides= [...sec.querySelectorAll('.slide')];
+      const prev  = sec.querySelector('.prev');
+      const next  = sec.querySelector('.next');
+      const dotsWrap = sec.querySelector('.dots');
+
+      // Build dots dynamically
+      dotsWrap.innerHTML = slides.map((_,i)=>
+        `<button class="dot" role="tab" aria-selected="${i===0?'true':'false'}"
+                 aria-current="${i===0?'true':'false'}" title="Slide ${i+1}"></button>`
+      ).join('');
+      const dots = [...dotsWrap.querySelectorAll('.dot')];
+
+      const total = slides.length;
+      slides.forEach((s,i)=> s.setAttribute('aria-label', `${i+1} of ${total}`));
+
+      let idx=0, lock=false;
+
+      function go(i){
+        idx = Math.max(0, Math.min(total-1, i));
+        track.scrollTo({ left: slides[idx].offsetLeft - track.offsetLeft, behavior:'smooth' });
+        updateDots();
+      }
+      function updateDots(){
+        dots.forEach((d,i)=>{
+          const on=i===idx;
+          d.setAttribute('aria-current', on ? 'true' : 'false');
+          d.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+      }
+      function nearestIndex(){
+        const x=track.scrollLeft, w=track.clientWidth;
+        return Math.round(x / w);
+      }
+
+      // Buttons
+      prev.addEventListener('click', ()=>{ stop(); go(idx-1); startSoon(); });
+      next.addEventListener('click', ()=>{ stop(); go(idx+1); startSoon(); });
+      dots.forEach((d,i)=> d.addEventListener('click', ()=>{ stop(); go(i); startSoon(); }));
+
+      // Keyboard
+      track.addEventListener('keydown', (e)=>{
+        if(e.key==='ArrowRight'){ stop(); go(idx+1); startSoon(); }
+        if(e.key==='ArrowLeft'){  stop(); go(idx-1); startSoon(); }
+      });
+
+      // Sync on scroll end (debounced)
+      track.addEventListener('scroll', ()=>{
+        if(lock) return;
+        lock=true; setTimeout(()=>{ idx=nearestIndex(); updateDots(); lock=false; }, 110);
+      }, {passive:true});
+
+      /* ===== Drag / Swipe support ===== */
+      let isDown=false, startX=0, startScroll=0, moved=false;
+      const THRESHOLD = 60; // px to consider a swipe to next/prev
+
+      function onPointerDown(e){
+        isDown=true; moved=false;
+        track.classList.add('grabbing');
+        startX = e.clientX ?? (e.touches && e.touches[0].clientX) ?? 0;
+        startScroll = track.scrollLeft;
+        stop();
+      }
+      function onPointerMove(e){
+        if(!isDown) return;
+        const x = e.clientX ?? (e.touches && e.touches[0].clientX) ?? 0;
+        const dx = startX - x;
+        if(Math.abs(dx) > 2) moved=true;
+        track.scrollLeft = startScroll + dx; // drag the track
+      }
+      function onPointerUp(e){
+        if(!isDown) return;
+        isDown=false; track.classList.remove('grabbing');
+        const x = (e.changedTouches && e.changedTouches[0].clientX) ?? e.clientX ?? startX;
+        const dx = startX - x;
+        if(Math.abs(dx) > THRESHOLD){
+          if(dx > 0) go(idx+1); else go(idx-1);
+        }else{
+          // Snap to nearest slide
+          go(nearestIndex());
+        }
+        startSoon();
+      }
+
+      // Mouse / touch events
+      track.addEventListener('pointerdown', onPointerDown);
+      window.addEventListener('pointermove', onPointerMove, {passive:true});
+      window.addEventListener('pointerup', onPointerUp, {passive:true});
+      track.addEventListener('touchstart', onPointerDown, {passive:true});
+      track.addEventListener('touchmove', onPointerMove, {passive:true});
+      track.addEventListener('touchend', onPointerUp, {passive:true});
+
+      // Prevent accidental text selection while dragging (safari)
+      track.addEventListener('dragstart', e=>e.preventDefault());
+
+      /* ===== Faster autoplay (≈2.8s) and smarter resume ===== */
+      const autoPlayAllowed = !matchMedia('(prefers-reduced-motion: reduce)').matches && total > 1;
+      let timer=null, resumeTimer=null;
+
+      function start(){
+        if(timer || !autoPlayAllowed) return;
+        timer = setTimeout(function tick(){
+          go((idx+1) % total);
+          timer = setTimeout(tick, 2800);
+        }, 2800);
+      }
+      function stop(){ if(timer){ clearTimeout(timer); timer=null; } if(resumeTimer){ clearTimeout(resumeTimer); resumeTimer=null; } }
+      function startSoon(){
+        if(!autoPlayAllowed) return;
+        if(resumeTimer) clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(()=>{ start(); }, 900);
+      }
+
+      // Pause when hovering/touching the track
+      track.addEventListener('pointerenter', stop);
+      track.addEventListener('pointerleave', startSoon);
+
+      // Init
+      updateDots();
+      start();
+    })();
+  </script>
+</section>
+
+<section id="gamusa-road"> <style> /* Assamese Gamusa "road" — uses your real Gamusa artwork as a repeating strip */ /* 🔁 Replace the example URL below with your ONLINE image link (PNG/JPG/SVG) of the pattern */ #gamusa-road{ --img: url("static/gamu.jpeg"); }
+#gamusa-road{position:relative;margin:0;padding:0}
+#gamusa-road .lane{
+  position:relative; width:100%; height:56px; overflow:hidden;
+  /* red rails like woven borders */
+  background:
+    linear-gradient(#b30000,#b30000) top/100% 3px no-repeat,
+    linear-gradient(#b30000,#b30000) bottom/100% 3px no-repeat,
+    #fff;
+  box-shadow: inset 0 8px 16px rgba(0,0,0,.04), inset 0 -8px 16px rgba(0,0,0,.04);
+}
+
+/* The moving Gamusa artwork */
+#gamusa-road .lane::after{
+  content:""; position:absolute; left:0; right:0; top:3px; bottom:3px;
+  background-image: var(--img);
+  background-repeat: repeat-x;        /* continuous like a road */
+  background-position: 0 50%;
+  background-size: auto 100%;         /* scale image height to fit strip */
+  animation: gamusa-move 12s linear infinite;
+  /* optional subtle fabric texture overlay */
+  mix-blend-mode: normal;
+}
+
+/* gentle edge fade so the loop feels seamless on some images */
+#gamusa-road .lane::before{
+  content:""; position:absolute; inset:3px 0;
+  pointer-events:none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  background: rgba(255,255,255,.0);
+}
+
+@keyframes gamusa-move{
+  from { background-position: 0 50%; }
+  to   { background-position: -1200px 50%; } /* adjust speed by changing distance/time */
+}
+
+/* Slimmer on mobile if you want */
+@media (max-width:720px){
+  #gamusa-road .lane{ height:44px; }
+}
+
+</style> <!-- Moving Gamusa road (change --img in the style above to your actual online link) --> <div class="lane" aria-hidden="true"></div> </section>
+
+</style> <!-- The moving Gamusa "road" --> <div class="track" aria-hidden="true"></div> </section>
 
   <!-- Best Sellers Section (unchanged design below) -->
   <section id="tmg-best-sellers" aria-labelledby="tmg-best-sellers-title">
@@ -1153,407 +1929,6 @@
 
 </style> <!-- The moving Gamusa "road" --> <div class="track" aria-hidden="true"></div> </section>
 
-<section id="awards-slider" aria-labelledby="awards-title">
-  <style>
-    /* ===== Scoped tokens (inherit your site vars) ===== */
-    #awards-slider{
-      --bg:#f6f4ed;
-      --ink:#37392f;
-      --muted:#988e87;
-      --red:#b33f36;
-      --radius:16px;
-      --maxw:1200px;
-      --shadow:0 10px 30px rgba(0,0,0,.08);
-      color:var(--ink);
-      background:var(--bg);
-      position:relative;
-      overflow:clip;
-    }
-    #awards-slider .wrap{ width:min(100%,var(--maxw)); margin-inline:auto; padding:clamp(34px,6vw,72px) clamp(16px,4vw,28px); }
-
-    /* ===== Header ===== */
-    #awards-slider .eyebrow{
-      display:inline-flex; align-items:center; gap:10px;
-      font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-      color:var(--muted); font-size:12px; margin-bottom:8px;
-    }
-    #awards-slider .eyebrow::before,#awards-slider .eyebrow::after{
-      content:""; width:20px; height:2px; background:currentColor; opacity:.3;
-    }
-    #awards-slider .title{
-      font-family:"Bebas Neue", Inter, ui-sans-serif;
-      font-size:clamp(32px,6vw,68px); letter-spacing:1px; line-height:.95; text-transform:uppercase;
-      text-shadow:0 2px 0 rgba(255,255,255,.45);
-      margin:0 0 8px;
-    }
-    #awards-slider .sub{ color:var(--muted); max-width:60ch; font-size:15px; margin:0 0 16px; }
-
-    /* ===== Carousel (frameless) ===== */
-    #awards-slider .slider{ position:relative; margin-top:12px; background:transparent; border:none; box-shadow:none; padding:0; }
-    #awards-slider .track{
-      display:grid; grid-auto-flow:column; grid-auto-columns:100%;
-      overflow-x:auto; overscroll-behavior-x:contain;
-      scroll-snap-type:x mandatory; scroll-behavior:smooth;
-      -webkit-overflow-scrolling:touch;
-      gap:0; scrollbar-width:none;
-      cursor:grab;
-      user-select:none;
-      -webkit-user-select:none;
-      touch-action:pan-x pinch-zoom; /* smoother swipes on mobile */
-    }
-    #awards-slider .track.grabbing{ cursor:grabbing; }
-    #awards-slider .track::-webkit-scrollbar{ display:none; }
-
-    #awards-slider .slide{ position:relative; scroll-snap-align:center; outline:none; }
-    #awards-slider figure{
-      margin:0; background:transparent; border:none; overflow:hidden;
-      display:grid; grid-template-rows:auto auto; gap:0; border-radius:var(--radius);
-    }
-    #awards-slider .media{
-      aspect-ratio:16 / 9; background:#fff; display:grid; place-items:center; overflow:hidden; border-radius:var(--radius);
-    }
-    #awards-slider .media img{
-      width:100%; height:100%; object-fit:cover; object-position:center;
-      transition:transform .45s ease, filter .45s ease; display:block;
-      pointer-events:none; /* prevent image from intercepting drags */
-    }
-    #awards-slider figure:hover .media img{ transform:scale(1.02); }
-    #awards-slider figcaption{ padding:12px 8px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    #awards-slider .cap-left{ display:grid; gap:4px; }
-    #awards-slider .cap-title{
-      font-family:"Bebas Neue", Inter, ui-sans-serif;
-      font-size:clamp(20px,2.6vw,28px); letter-spacing:.6px; line-height:1; text-transform:uppercase;
-    }
-    #awards-slider .cap-sub{ color:var(--muted); font-size:13px; }
-
-    /* ===== Controls ===== */
-    #awards-slider .ctrl{
-      position:absolute; inset:auto 8px 50% 8px; translate:0 50%;
-      display:flex; justify-content:space-between; pointer-events:none;
-    }
-    #awards-slider .btn{
-      pointer-events:auto; border:1px solid #111; background:#fff; color:#111;
-      width:44px; height:44px; border-radius:999px; display:grid; place-items:center;
-      box-shadow:0 10px 24px rgba(0,0,0,.10);
-      transition:transform .12s ease, filter .12s ease;
-    }
-    #awards-slider .btn:hover{ transform:translateY(-1px); filter:saturate(1.05); }
-    #awards-slider .btn:active{ transform:none; }
-    #awards-slider .btn svg{ width:18px; height:18px; }
-
-    /* Dots */
-    #awards-slider .dots{ display:flex; gap:8px; justify-content:center; align-items:center; padding:12px 0 6px; }
-    #awards-slider .dot{
-      width:8px; height:8px; border-radius:999px; background:#cfc9c2; border:0; padding:0; cursor:pointer;
-      transition:transform .12s ease, background .2s ease;
-    }
-    #awards-slider .dot[aria-current="true"]{ background:var(--red); transform:scale(1.4); }
-
-    /* CTA (if you later add one) */
-    #awards-slider .cta{
-      display:inline-flex; align-items:center; justify-content:center; gap:10px;
-      margin-top:14px; background:var(--red); color:#fff; text-decoration:none;
-      padding:12px 18px; border-radius:999px; font-weight:900; letter-spacing:.04em;
-      box-shadow:0 6px 16px rgba(179,63,54,.28);
-      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
-    }
-    #awards-slider .cta:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(179,63,54,.30); }
-    #awards-slider .cta:active{ transform:translateY(0); }
-
-    /* Reveal helper */
-    #awards-slider .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
-    #awards-slider .in{ opacity:1; transform:none; }
-
-    /* Responsive */
-    @media (max-width:980px){ #awards-slider .ctrl{ inset:auto 6px 50% 6px; } }
-    @media (max-width:720px){
-      #awards-slider .wrap{ padding-bottom:28px; }
-      #awards-slider .btn{ width:40px; height:40px; }
-      #awards-slider .media{ aspect-ratio:4 / 3; }
-    }
-  </style>
-
-  <div class="wrap">
-    <header class="reveal">
-      <h2 id="awards-title" class="title">AWARDS,&nbsp;RECOGNITION AND PARTICIPATION</h2>
-    </header>
-
-    <div class="slider reveal">
-      <!-- Controls -->
-      <div class="ctrl" aria-hidden="true">
-        <button class="btn prev" type="button" aria-label="Previous">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <button class="btn next" type="button" aria-label="Next">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-        </button>
-      </div>
-
-      <!-- Track (3 slides only) -->
-      <div class="track" role="region" aria-roledescription="carousel" aria-label="Awards and recognitions" tabindex="0">
-        <!-- Slide 1 -->
-        <div class="slide" role="group" aria-roledescription="slide" aria-label="1 of 4">
-          <figure>
-            <div class="media"><img src="static/certificateayanant.png" alt="Award / recognition 1"></div>
-            <figcaption>
-              <div class="cap-left">
-                <div class="cap-title">Officially registered with Startup India.</div>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-        <!-- Slide 2 -->
-        <div class="slide" role="group" aria-roledescription="slide" aria-label="2 of 4">
-          <figure>
-            <div class="media"><img src="static/gallery/03.jpg" alt="Award / recognition 2"></div>
-            <figcaption>
-              <div class="cap-left">
-                <div class="cap-title">Fueling Growth with NEATEHUB’s RKVY Grant.</div>
-                
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-        <!-- Slide 3 -->
-        <div class="slide" role="group" aria-roledescription="slide" aria-label="3 of 4">
-          <figure>
-            <div class="media"><img src="static/gallery/04.jpg" alt="Award / recognition 3"></div>
-            <figcaption>
-              <div class="cap-left">
-                <div class="cap-title">Engaged in Shaping Ideas at NE Conclave 2.0</div>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-
-
-        <div class="slide" role="group" aria-roledescription="slide" aria-label="4 of 4">
-  <figure>
-    <div class="media">
-      <img src="static/gallery/gallery10.jpg" alt="Award / recognition 4">
-    </div>
-    <figcaption>
-      <div class="cap-left">
-        <div class="cap-title">Nagaland Meet: Linking Opportunities.</div>
-        
-      </div>
-    </figcaption>
-  </figure>
-</div>
-      </div><!-- /.track -->
-
-      <!-- Slide 4 -->
-
-
-      <!-- Dots -->
-      <div class="dots" role="tablist" aria-label="Slides"></div>
-    </div><!-- /.slider -->
-  </div><!-- /.wrap -->
-
-  <script>
-    // Reveal-on-scroll
-    (function(){
-      const root=document.getElementById('awards-slider');
-      if(!root) return;
-      const els=[...root.querySelectorAll('.reveal')];
-      if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('in')); return; }
-      const io=new IntersectionObserver((entries)=>{
-        entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-      },{threshold:.12});
-      els.forEach(el=>io.observe(el));
-    })();
-
-    // Carousel with faster autoplay + drag/swipe
-    (function(){
-      const sec   = document.getElementById('awards-slider');
-      if(!sec) return;
-      const track = sec.querySelector('.track');
-      const slides= [...sec.querySelectorAll('.slide')];
-      const prev  = sec.querySelector('.prev');
-      const next  = sec.querySelector('.next');
-      const dotsWrap = sec.querySelector('.dots');
-
-      if(!track || !slides.length || !dotsWrap) return;
-
-      // Build dots dynamically
-      dotsWrap.innerHTML = slides.map((_,i)=>
-        `<button class="dot" role="tab" aria-selected="${i===0?'true':'false'}"
-                 aria-current="${i===0?'true':'false'}" title="Slide ${i+1}"></button>`
-      ).join('');
-      const dots = [...dotsWrap.querySelectorAll('.dot')];
-
-      const total = slides.length;
-      slides.forEach((s,i)=> s.setAttribute('aria-label', `${i+1} of ${total}`));
-
-      let idx=0, lock=false;
-
-      function go(i){
-        idx = Math.max(0, Math.min(total-1, i));
-        track.scrollTo({ left: slides[idx].offsetLeft - track.offsetLeft, behavior:'smooth' });
-        updateDots();
-      }
-      function updateDots(){
-        dots.forEach((d,i)=>{
-          const on=i===idx;
-          d.setAttribute('aria-current', on ? 'true' : 'false');
-          d.setAttribute('aria-selected', on ? 'true' : 'false');
-        });
-      }
-      function nearestIndex(){
-        const x=track.scrollLeft, w=track.clientWidth;
-        return Math.round(x / w);
-      }
-
-      // Buttons
-      prev.addEventListener('click', ()=>{ stop(); go(idx-1); startSoon(); });
-      next.addEventListener('click', ()=>{ stop(); go(idx+1); startSoon(); });
-      dots.forEach((d,i)=> d.addEventListener('click', ()=>{ stop(); go(i); startSoon(); }));
-
-      // Keyboard
-      track.addEventListener('keydown', (e)=>{
-        if(e.key==='ArrowRight'){ stop(); go(idx+1); startSoon(); }
-        if(e.key==='ArrowLeft'){  stop(); go(idx-1); startSoon(); }
-      });
-
-      // Sync on scroll end (debounced)
-      track.addEventListener('scroll', ()=>{
-        if(lock) return;
-        lock=true; setTimeout(()=>{ idx=nearestIndex(); updateDots(); lock=false; }, 110);
-      }, {passive:true});
-
-      /* ===== Drag / Swipe support ===== */
-      let isDown=false, startX=0, startScroll=0;
-      const THRESHOLD = 60; // px to consider a swipe to next/prev
-
-      function getClientX(e){
-        if(e.clientX != null) return e.clientX;
-        if(e.touches && e.touches[0]) return e.touches[0].clientX;
-        if(e.changedTouches && e.changedTouches[0]) return e.changedTouches[0].clientX;
-        return 0;
-      }
-
-      function onPointerDown(e){
-        isDown=true;
-        track.classList.add('grabbing');
-        startX = getClientX(e);
-        startScroll = track.scrollLeft;
-        stop();
-      }
-      function onPointerMove(e){
-        if(!isDown) return;
-        const x = getClientX(e);
-        const dx = startX - x;
-        track.scrollLeft = startScroll + dx; // drag the track
-      }
-      function onPointerUp(e){
-        if(!isDown) return;
-        isDown=false; track.classList.remove('grabbing');
-        const x = getClientX(e);
-        const dx = startX - x;
-        if(Math.abs(dx) > THRESHOLD){
-          if(dx > 0) go(idx+1); else go(idx-1);
-        }else{
-          // Snap to nearest slide
-          go(nearestIndex());
-        }
-        startSoon();
-      }
-
-      // Mouse / touch events
-      track.addEventListener('pointerdown', onPointerDown);
-      window.addEventListener('pointermove', onPointerMove, {passive:true});
-      window.addEventListener('pointerup', onPointerUp, {passive:true});
-      track.addEventListener('touchstart', onPointerDown, {passive:true});
-      track.addEventListener('touchmove', onPointerMove, {passive:true});
-      track.addEventListener('touchend', onPointerUp, {passive:true});
-
-      // Prevent accidental text selection while dragging (safari)
-      track.addEventListener('dragstart', e=>e.preventDefault());
-
-      /* ===== Faster autoplay (≈2.8s) and smarter resume ===== */
-      const autoPlayAllowed = !matchMedia('(prefers-reduced-motion: reduce)').matches && total > 1;
-      let timer=null, resumeTimer=null;
-
-      function start(){
-        if(timer || !autoPlayAllowed) return;
-        timer = setTimeout(function tick(){
-          go((idx+1) % total);
-          timer = setTimeout(tick, 2800);
-        }, 2800);
-      }
-      function stop(){
-        if(timer){ clearTimeout(timer); timer=null; }
-        if(resumeTimer){ clearTimeout(resumeTimer); resumeTimer=null; }
-      }
-      function startSoon(){
-        if(!autoPlayAllowed) return;
-        if(resumeTimer) clearTimeout(resumeTimer);
-        resumeTimer = setTimeout(()=>{ start(); }, 900);
-      }
-
-      // Pause when hovering/touching the track
-      track.addEventListener('pointerenter', stop);
-      track.addEventListener('pointerleave', startSoon);
-
-      // Init
-      updateDots();
-      start();
-    })();
-  </script>
-</section>
-
-
-
-
-
-
-  <section id="gamusa-road"> <style> /* Assamese Gamusa "road" — uses your real Gamusa artwork as a repeating strip */ /* 🔁 Replace the example URL below with your ONLINE image link (PNG/JPG/SVG) of the pattern */ #gamusa-road{ --img: url("static/gamu.jpeg"); }
-#gamusa-road{position:relative;margin:0;padding:0}
-#gamusa-road .lane{
-  position:relative; width:100%; height:56px; overflow:hidden;
-  /* red rails like woven borders */
-  background:
-    linear-gradient(#b30000,#b30000) top/100% 3px no-repeat,
-    linear-gradient(#b30000,#b30000) bottom/100% 3px no-repeat,
-    #fff;
-  box-shadow: inset 0 8px 16px rgba(0,0,0,.04), inset 0 -8px 16px rgba(0,0,0,.04);
-}
-
-/* The moving Gamusa artwork */
-#gamusa-road .lane::after{
-  content:""; position:absolute; left:0; right:0; top:3px; bottom:3px;
-  background-image: var(--img);
-  background-repeat: repeat-x;        /* continuous like a road */
-  background-position: 0 50%;
-  background-size: auto 100%;         /* scale image height to fit strip */
-  animation: gamusa-move 12s linear infinite;
-  /* optional subtle fabric texture overlay */
-  mix-blend-mode: normal;
-}
-
-/* gentle edge fade so the loop feels seamless on some images */
-#gamusa-road .lane::before{
-  content:""; position:absolute; inset:3px 0;
-  pointer-events:none;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  background: rgba(255,255,255,.0);
-}
-
-@keyframes gamusa-move{
-  from { background-position: 0 50%; }
-  to   { background-position: -1200px 50%; } /* adjust speed by changing distance/time */
-}
-
-/* Slimmer on mobile if you want */
-@media (max-width:720px){
-  #gamusa-road .lane{ height:44px; }
-}
-
-</style> <!-- Moving Gamusa road (change --img in the style above to your actual online link) --> <div class="lane" aria-hidden="true"></div> </section>
-
-</style> <!-- The moving Gamusa "road" --> <div class="track" aria-hidden="true"></div> </section>
 
 <section id="entrepreneurs" aria-labelledby="entrepreneurs-title">
   <style>
@@ -1936,385 +2311,6 @@
 </style> <!-- The moving Gamusa "road" --> <div class="track" aria-hidden="true"></div> </section>
 
 
-<section id="ne-locals" aria-labelledby="ne-locals-title">
-  <style>
-    /* ===== Scoped tokens (inherit your site vars) ===== */
-    #ne-locals{
-      --bg:#f6f4ed;
-      --ink:#37392f;
-      --muted:#988e87;
-      --red:#b33f36;
-      --radius:16px;
-      --maxw:1200px;
-      --shadow:0 10px 30px rgba(0,0,0,.08);
-      color:var(--ink);
-      background:var(--bg);
-      position:relative;
-      overflow:clip;
-    }
-    #ne-locals .wrap{ width:min(100%,var(--maxw)); margin-inline:auto; padding:clamp(34px,6vw,72px) clamp(16px,4vw,28px); }
-
-    /* ===== Header ===== */
-    #ne-locals .eyebrow{
-      display:inline-flex; align-items:center; gap:10px;
-      font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-      color:var(--muted); font-size:12px; margin-bottom:8px;
-    }
-    #ne-locals .eyebrow::before,#ne-locals .eyebrow::after{
-      content:""; width:20px; height:2px; background:currentColor; opacity:.3;
-    }
-    #ne-locals .title{
-      font-family:"Bebas Neue", Inter, ui-sans-serif;
-      font-size:clamp(32px,6vw,68px); letter-spacing:1px; line-height:.95; text-transform:uppercase;
-      text-shadow:0 2px 0 rgba(255,255,255,.45);
-      margin:0 0 8px;
-    }
-    #ne-locals .sub{ color:var(--muted); max-width:60ch; font-size:15px; margin:0 0 16px; }
-
-    /* ===== Carousel (frameless) ===== */
-    #ne-locals .slider{ position:relative; margin-top:12px; background:transparent; border:none; box-shadow:none; padding:0; }
-    #ne-locals .track{
-      display:grid; grid-auto-flow:column; grid-auto-columns:100%;
-      overflow-x:auto; overscroll-behavior-x:contain;
-      scroll-snap-type:x mandatory; scroll-behavior:smooth;
-      -webkit-overflow-scrolling:touch;
-      gap:0; scrollbar-width:none;
-      cursor:grab;
-      user-select:none;
-      -webkit-user-select:none;
-      touch-action:pan-x pinch-zoom; /* smoother swipes on mobile */
-    }
-    #ne-locals .track.grabbing{ cursor:grabbing; }
-    #ne-locals .track::-webkit-scrollbar{ display:none; }
-
-    #ne-locals .slide{ position:relative; scroll-snap-align:center; outline:none; }
-    #ne-locals figure{
-      margin:0; background:transparent; border:none; overflow:hidden;
-      display:grid; grid-template-rows:auto auto; gap:0; border-radius:var(--radius);
-    }
-    #ne-locals .media{
-      aspect-ratio:16 / 9; background:#fff; display:grid; place-items:center; overflow:hidden; border-radius:var(--radius);
-    }
-    #ne-locals .media img{
-      width:100%; height:100%; object-fit:cover; object-position:center;
-      transition:transform .45s ease, filter .45s ease; display:block;
-      pointer-events:none; /* prevent image from intercepting drags */
-    }
-    #ne-locals figure:hover .media img{ transform:scale(1.02); }
-    #ne-locals figcaption{ padding:12px 8px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    #ne-locals .cap-left{ display:grid; gap:4px; }
-    #ne-locals .cap-title{
-      font-family:"Bebas Neue", Inter, ui-sans-serif;
-      font-size:clamp(20px,2.6vw,28px); letter-spacing:.6px; line-height:1; text-transform:uppercase;
-    }
-    #ne-locals .cap-sub{ color:var(--muted); font-size:13px; }
-
-    /* ===== Controls ===== */
-    #ne-locals .ctrl{
-      position:absolute; inset:auto 8px 50% 8px; translate:0 50%;
-      display:flex; justify-content:space-between; pointer-events:none;
-    }
-    #ne-locals .btn{
-      pointer-events:auto; border:1px solid #111; background:#fff; color:#111;
-      width:44px; height:44px; border-radius:999px; display:grid; place-items:center;
-      box-shadow:0 10px 24px rgba(0,0,0,.10);
-      transition:transform .12s ease, filter .12s ease;
-    }
-    #ne-locals .btn:hover{ transform:translateY(-1px); filter:saturate(1.05); }
-    #ne-locals .btn:active{ transform:none; }
-    #ne-locals .btn svg{ width:18px; height:18px; }
-
-    /* Dots */
-    #ne-locals .dots{ display:flex; gap:8px; justify-content:center; align-items:center; padding:12px 0 6px; }
-    #ne-locals .dot{
-      width:8px; height:8px; border-radius:999px; background:#cfc9c2; border:0; padding:0; cursor:pointer;
-      transition:transform .12s ease, background .2s ease;
-    }
-    #ne-locals .dot[aria-current="true"]{ background:var(--red); transform:scale(1.4); }
-
-    /* CTA */
-    #ne-locals .cta{
-      display:inline-flex; align-items:center; justify-content:center; gap:10px;
-      margin-top:14px; background:var(--red); color:#fff; text-decoration:none;
-      padding:12px 18px; border-radius:999px; font-weight:900; letter-spacing:.04em;
-      box-shadow:0 6px 16px rgba(179,63,54,.28);
-      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
-    }
-    #ne-locals .cta:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(179,63,54,.30); }
-    #ne-locals .cta:active{ transform:translateY(0); }
-
-    /* Reveal helper */
-    #ne-locals .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
-    #ne-locals .in{ opacity:1; transform:none; }
-
-    /* Responsive */
-    @media (max-width:980px){ #ne-locals .ctrl{ inset:auto 6px 50% 6px; } }
-    @media (max-width:720px){
-      #ne-locals .wrap{ padding-bottom:28px; }
-      #ne-locals .btn{ width:40px; height:40px; }
-      #ne-locals .media{ aspect-ratio:4 / 3; }
-    }
-  </style>
-
-  <div class="wrap">
-    <header class="reveal">
-      <div class="eyebrow" aria-hidden="true">OUR STORE</div>
-      <h2 id="ne-locals-title" class="title">NE&nbsp;LOCALS</h2>
-      <p class="sub">A quick peek inside our NE&nbsp;LOCALS store</p>
-    </header>
-
-    <div class="slider reveal">
-      <!-- Controls -->
-      <div class="ctrl" aria-hidden="true">
-        <button class="btn prev" type="button" aria-label="Previous">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <button class="btn next" type="button" aria-label="Next">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-        </button>
-      </div>
-
-      <!-- Track -->
-      <div class="track" role="region" aria-roledescription="carousel" aria-label="NE LOCALS store gallery" tabindex="0">
-        <!-- Slide 1 -->
-        <div class="slide" role="group" aria-roledescription="slide" aria-label="1 of 6">
-          <figure>
-            <div class="media"><img src="static/store1.jpg" alt="NE LOCALS storefront — exterior view"></div>
-            <figcaption><div class="cap-left"><div class="cap-title">Storefront</div><div class="cap-sub">Exterior — welcome to NE LOCALS</div></div></figcaption>
-          </figure>
-        </div>
-        <!-- Slide 2 -->
-        <div class="slide" role="group" aria-roledescription="slide" aria-label="2 of 6">
-          <figure>
-            <div class="media"><img src="static/store5.jpg" alt="Interior racks with local products"></div>
-            <figcaption><div class="cap-left"><div class="cap-title">Inside Aisles</div><div class="cap-sub">Curated local products</div></div></figcaption>
-          </figure>
-        </div>
-        <!-- Slide 3 -->
-        <div class="slide" role="group" aria-roledescription="slide" aria-label="3 of 6">
-          <figure>
-            <div class="media"><img src="static/store4.jpg" alt="Checkout counter at NE LOCALS"></div>
-            <figcaption><div class="cap-left"><div class="cap-title">Checkout</div><div class="cap-sub">Fast & friendly service</div></div></figcaption>
-          </figure>
-        </div>
-        <!-- Slide 4 -->
-        <div class="slide" role="group" aria-roledescription="slide" aria-label="4 of 6">
-          <figure>
-            <div class="media"><img src="static/store3.jpg" alt="Fresh produce section"></div>
-            <figcaption><div class="cap-left"><div class="cap-title">Fresh Produce</div><div class="cap-sub">From trusted NE growers</div></div></figcaption>
-          </figure>
-        </div>
-        <!-- Slide 5 -->
-        <div class="slide" role="group" aria-roledescription="slide" aria-label="5 of 6">
-          <figure>
-            <div class="media"><img src="static/store2.jpg" alt="Spices & staples display"></div>
-            <figcaption><div class="cap-left"><div class="cap-title">EVERYDAY ESSENTIALS</div><div class="cap-sub">Now Accessible</div></div></figcaption>
-          </figure>
-        </div>
-        <!-- Slide 6 -->
-        <div class="slide" role="group" aria-roledescription="slide" aria-label="6 of 6">
-          <figure>
-            <div class="media"><img src="static/store6.jpg" alt="Additional store image"></div>
-            <figcaption><div class="cap-left"><div class="cap-title">Store's Building Upfront</div><div class="cap-sub">The Building</div></div></figcaption>
-          </figure>
-        </div>
-      </div>
-
-      <!-- Dots -->
-      <div class="dots" role="tablist" aria-label="Slides"></div>
-    </div>
-
-    <!-- Optional CTA -->
-    <a class="cta magnet" href="/products">Explore NE-LOCALS Products</a>
-  </div>
-
-  <script>
-    // Reveal-on-scroll
-    (function(){
-      const root=document.getElementById('ne-locals');
-      if(!root) return;
-      const els=[...root.querySelectorAll('.reveal')];
-      if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('in')); return; }
-      const io=new IntersectionObserver((entries)=>{
-        entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-      },{threshold:.12});
-      els.forEach(el=>io.observe(el));
-    })();
-
-    // Carousel with faster autoplay + drag/swipe
-    (function(){
-      const sec   = document.getElementById('ne-locals');
-      const track = sec.querySelector('.track');
-      const slides= [...sec.querySelectorAll('.slide')];
-      const prev  = sec.querySelector('.prev');
-      const next  = sec.querySelector('.next');
-      const dotsWrap = sec.querySelector('.dots');
-
-      // Build dots dynamically
-      dotsWrap.innerHTML = slides.map((_,i)=>
-        `<button class="dot" role="tab" aria-selected="${i===0?'true':'false'}"
-                 aria-current="${i===0?'true':'false'}" title="Slide ${i+1}"></button>`
-      ).join('');
-      const dots = [...dotsWrap.querySelectorAll('.dot')];
-
-      const total = slides.length;
-      slides.forEach((s,i)=> s.setAttribute('aria-label', `${i+1} of ${total}`));
-
-      let idx=0, lock=false;
-
-      function go(i){
-        idx = Math.max(0, Math.min(total-1, i));
-        track.scrollTo({ left: slides[idx].offsetLeft - track.offsetLeft, behavior:'smooth' });
-        updateDots();
-      }
-      function updateDots(){
-        dots.forEach((d,i)=>{
-          const on=i===idx;
-          d.setAttribute('aria-current', on ? 'true' : 'false');
-          d.setAttribute('aria-selected', on ? 'true' : 'false');
-        });
-      }
-      function nearestIndex(){
-        const x=track.scrollLeft, w=track.clientWidth;
-        return Math.round(x / w);
-      }
-
-      // Buttons
-      prev.addEventListener('click', ()=>{ stop(); go(idx-1); startSoon(); });
-      next.addEventListener('click', ()=>{ stop(); go(idx+1); startSoon(); });
-      dots.forEach((d,i)=> d.addEventListener('click', ()=>{ stop(); go(i); startSoon(); }));
-
-      // Keyboard
-      track.addEventListener('keydown', (e)=>{
-        if(e.key==='ArrowRight'){ stop(); go(idx+1); startSoon(); }
-        if(e.key==='ArrowLeft'){  stop(); go(idx-1); startSoon(); }
-      });
-
-      // Sync on scroll end (debounced)
-      track.addEventListener('scroll', ()=>{
-        if(lock) return;
-        lock=true; setTimeout(()=>{ idx=nearestIndex(); updateDots(); lock=false; }, 110);
-      }, {passive:true});
-
-      /* ===== Drag / Swipe support ===== */
-      let isDown=false, startX=0, startScroll=0, moved=false;
-      const THRESHOLD = 60; // px to consider a swipe to next/prev
-
-      function onPointerDown(e){
-        isDown=true; moved=false;
-        track.classList.add('grabbing');
-        startX = e.clientX ?? (e.touches && e.touches[0].clientX) ?? 0;
-        startScroll = track.scrollLeft;
-        stop();
-      }
-      function onPointerMove(e){
-        if(!isDown) return;
-        const x = e.clientX ?? (e.touches && e.touches[0].clientX) ?? 0;
-        const dx = startX - x;
-        if(Math.abs(dx) > 2) moved=true;
-        track.scrollLeft = startScroll + dx; // drag the track
-      }
-      function onPointerUp(e){
-        if(!isDown) return;
-        isDown=false; track.classList.remove('grabbing');
-        const x = (e.changedTouches && e.changedTouches[0].clientX) ?? e.clientX ?? startX;
-        const dx = startX - x;
-        if(Math.abs(dx) > THRESHOLD){
-          if(dx > 0) go(idx+1); else go(idx-1);
-        }else{
-          // Snap to nearest slide
-          go(nearestIndex());
-        }
-        startSoon();
-      }
-
-      // Mouse / touch events
-      track.addEventListener('pointerdown', onPointerDown);
-      window.addEventListener('pointermove', onPointerMove, {passive:true});
-      window.addEventListener('pointerup', onPointerUp, {passive:true});
-      track.addEventListener('touchstart', onPointerDown, {passive:true});
-      track.addEventListener('touchmove', onPointerMove, {passive:true});
-      track.addEventListener('touchend', onPointerUp, {passive:true});
-
-      // Prevent accidental text selection while dragging (safari)
-      track.addEventListener('dragstart', e=>e.preventDefault());
-
-      /* ===== Faster autoplay (≈2.8s) and smarter resume ===== */
-      const autoPlayAllowed = !matchMedia('(prefers-reduced-motion: reduce)').matches && total > 1;
-      let timer=null, resumeTimer=null;
-
-      function start(){
-        if(timer || !autoPlayAllowed) return;
-        timer = setTimeout(function tick(){
-          go((idx+1) % total);
-          timer = setTimeout(tick, 2800);
-        }, 2800);
-      }
-      function stop(){ if(timer){ clearTimeout(timer); timer=null; } if(resumeTimer){ clearTimeout(resumeTimer); resumeTimer=null; } }
-      function startSoon(){
-        if(!autoPlayAllowed) return;
-        if(resumeTimer) clearTimeout(resumeTimer);
-        resumeTimer = setTimeout(()=>{ start(); }, 900);
-      }
-
-      // Pause when hovering/touching the track
-      track.addEventListener('pointerenter', stop);
-      track.addEventListener('pointerleave', startSoon);
-
-      // Init
-      updateDots();
-      start();
-    })();
-  </script>
-</section>
-
-
-  <section id="gamusa-road"> <style> /* Assamese Gamusa "road" — uses your real Gamusa artwork as a repeating strip */ /* 🔁 Replace the example URL below with your ONLINE image link (PNG/JPG/SVG) of the pattern */ #gamusa-road{ --img: url("static/gamu.jpeg"); }
-#gamusa-road{position:relative;margin:0;padding:0}
-#gamusa-road .lane{
-  position:relative; width:100%; height:56px; overflow:hidden;
-  /* red rails like woven borders */
-  background:
-    linear-gradient(#b30000,#b30000) top/100% 3px no-repeat,
-    linear-gradient(#b30000,#b30000) bottom/100% 3px no-repeat,
-    #fff;
-  box-shadow: inset 0 8px 16px rgba(0,0,0,.04), inset 0 -8px 16px rgba(0,0,0,.04);
-}
-
-/* The moving Gamusa artwork */
-#gamusa-road .lane::after{
-  content:""; position:absolute; left:0; right:0; top:3px; bottom:3px;
-  background-image: var(--img);
-  background-repeat: repeat-x;        /* continuous like a road */
-  background-position: 0 50%;
-  background-size: auto 100%;         /* scale image height to fit strip */
-  animation: gamusa-move 12s linear infinite;
-  /* optional subtle fabric texture overlay */
-  mix-blend-mode: normal;
-}
-
-/* gentle edge fade so the loop feels seamless on some images */
-#gamusa-road .lane::before{
-  content:""; position:absolute; inset:3px 0;
-  pointer-events:none;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  background: rgba(255,255,255,.0);
-}
-
-@keyframes gamusa-move{
-  from { background-position: 0 50%; }
-  to   { background-position: -1200px 50%; } /* adjust speed by changing distance/time */
-}
-
-/* Slimmer on mobile if you want */
-@media (max-width:720px){
-  #gamusa-road .lane{ height:44px; }
-}
-
-</style> <!-- Moving Gamusa road (change --img in the style above to your actual online link) --> <div class="lane" aria-hidden="true"></div> </section>
-
-</style> <!-- The moving Gamusa "road" --> <div class="track" aria-hidden="true"></div> </section>
 
 <section id="testimonials" aria-labelledby="testimonials-title">
   <style>
