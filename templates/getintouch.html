@@ -1,0 +1,605 @@
+{% extends "base.html" %}
+{% block title %}Ayanant • Contact & FAQ{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* -----------------------------
+     Tokens (kept near the top)
+  ------------------------------*/
+  :root{
+    --bg-cream:#f3efe7;
+    --bg-orange:#e7a13a; /* hero bg tone */
+    --ink:#1f2326;
+    --muted:#6f6b68;
+    --brand:#0e7a61;
+    --brand-2:#0c6a55;
+    --accent:#cf202c; /* red headlines */
+    --ring:rgba(14,122,97,.35);
+    --card:#ffffff;
+    --radius:22px;
+    --shadow-1:0 10px 28px rgba(0,0,0,.10);
+    --shadow-2:0 16px 48px rgba(0,0,0,.16);
+    --line:rgba(0,0,0,.12);
+    --container:1200px;
+  }
+
+  /* Page safety (important if the base uses transforms) */
+  .site{filter:none!important;transform:none!important}
+  main,#main,.site-content,.content,.page,.wrapper{overflow:visible!important;transform:none!important;contain:none!important}
+
+  /* -----------------------------
+     Global type
+  ------------------------------*/
+  body{color:var(--ink)}
+  .kicker{letter-spacing:.08em;text-transform:uppercase;font-size:.72rem;color:var(--muted)}
+
+  h1,h2,h3{margin:0 0 .6rem}
+  .headline-giant{
+    font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+    font-weight: 900;
+    line-height:.95;
+    letter-spacing:.5px;
+  }
+  .headline-giant.red{color:var(--accent)}
+  .eyebrow{font-weight:600;color:var(--muted)}
+
+  /* -----------------------------
+     Section: Contact Hero
+  ------------------------------*/
+  .contact-hero{
+    background:var(--bg-orange);
+    padding:80px 20px 90px;
+  }
+  .contact-grid{
+    max-width:var(--container);
+    margin:0 auto;
+    display:grid;
+    grid-template-columns: 1.1fr 1.2fr;
+    gap:38px;
+    align-items:start;
+  }
+  .contact-left p{
+    font-size:1.12rem;line-height:1.7;color:#281f10;max-width:560px
+  }
+  .contact-left .headline-giant{font-size:68px;margin-bottom:16px}
+
+  .contact-card{
+    position:relative;
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-2);
+    padding:28px 28px 30px;
+    border:1px solid rgba(0,0,0,.05);
+  }
+  .burst{
+    position:absolute; top:-22px; right:-22px;
+    width:150px;height:150px; pointer-events:none; filter:drop-shadow(0 10px 24px rgba(0,0,0,.15));
+  }
+  .burst svg{width:100%;height:100%}
+  .burst text{font-family: ui-sans-serif,system-ui; font-weight:800; fill:#f1fff7; text-transform:uppercase}
+  .form-row{display:grid; grid-template-columns: 1fr 1fr; gap:14px}
+  .form-row + .form-row{margin-top:12px}
+  .form-row.full{grid-template-columns: 1fr}
+  .control{
+    display:block;width:100%;
+    border:1.6px solid rgba(0,0,0,.12);
+    border-radius:14px; padding:14px 14px;
+    font-size:15px; outline:none;background:#fff;
+    transition:border .15s ease, box-shadow .15s ease, transform .06s ease;
+  }
+  .control:focus{border-color:var(--brand); box-shadow:0 0 0 4px var(--ring)}
+  textarea.control{min-height:140px; resize:vertical}
+  .btn{
+    appearance:none; border:0; border-radius:999px; padding:16px 28px;
+    font-weight:800; letter-spacing:.4px; text-transform:uppercase;
+    background:var(--brand); color:#fff; cursor:pointer;
+    box-shadow: 0 10px 20px rgba(14,122,97,.30);
+    transition: transform .16s cubic-bezier(.2,.8,.2,1), box-shadow .2s ease, filter .2s ease;
+    position:relative; overflow:hidden;
+  }
+  .btn:hover{transform: translateY(-1px) scale(1.02); box-shadow:0 14px 28px rgba(14,122,97,.35)}
+  .btn:active{transform: translateY(0) scale(.98)}
+  .btn .ripple{
+    position:absolute; border-radius:50%; transform:scale(0);
+    background:rgba(255,255,255,.45); animation:ripple .6s linear
+  }
+  @keyframes ripple{to{transform:scale(4); opacity:0}}
+
+  /* -----------------------------
+     Section: FAQ (compact + centered)
+  ------------------------------*/
+  .faq{background:var(--bg-cream); padding:56px 20px} /* slightly tighter */
+  .faq-inner{
+    max-width:820px;              /* narrower to make it smaller */
+    margin:0 auto;                /* centered */
+  }
+  .faq h2{
+    font-size:40px;               /* smaller title */
+    color:var(--accent);
+    letter-spacing:.5px;
+    margin-bottom:18px;
+    text-align:center;            /* centered heading */
+  }
+  .faq-list{border-top:2px solid var(--line)}
+  .faq-item{border-bottom:2px solid var(--line)}
+  .faq-q{
+    width:100%; background:transparent; border:0; text-align:left;
+    font-size:22px;               /* smaller question text */
+    padding:18px 46px 18px 0; cursor:pointer; position:relative;
+    font-weight:800; color:var(--ink);
+  }
+  .faq-q:focus{outline:none}
+  .chev{
+    position:absolute; right:0; top:50%; transform:translateY(-50%) rotate(0deg);
+    transition: transform .25s ease;
+    width:16px;height:16px; border-right:3px solid var(--ink); border-bottom:3px solid var(--ink);
+  }
+  .faq-item.open .chev{ transform:translateY(-50%) rotate(45deg) }
+  .faq-a{overflow:hidden; max-height:0; transition:max-height .32s ease}
+  .faq-a-inner{ padding:0 0 16px; color:var(--muted); line-height:1.75; font-size:16px }
+
+  /* -----------------------------
+     Section: Info Cards Row
+  ------------------------------*/
+  .info-row{background:var(--bg-cream); padding:10px 20px 90px}
+  .info-inner{
+    max-width:var(--container); margin:0 auto;
+    display:grid; gap:28px; grid-template-columns: repeat(3, 1fr)
+  }
+  .info-card{
+    background:#fff; border-radius:18px; box-shadow:var(--shadow-1); border:1px solid rgba(0,0,0,.08);
+    padding:28px; position:relative; min-height:260px;
+  }
+  .pin-badge{
+    position:absolute; left:50%; transform:translate(-50%,-50%);
+    top:0; width:94px;height:94px; z-index:2;
+    filter:drop-shadow(0 10px 22px rgba(0,0,0,.16));
+  }
+  .pin-badge svg{width:100%;height:100%}
+  .icn{
+    display:inline-flex; width:44px;height:44px; border:2px solid var(--ink); border-radius:999px;
+    align-items:center; justify-content:center; font-weight:900; text-decoration:none; color:var(--ink);
+    margin-right:10px; transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+  .icn:hover{transform:translateY(-2px); box-shadow:0 10px 20px rgba(0,0,0,.08); background:#fafafa}
+  .info-card h3{font-size:22px; margin:18px 0 10px}
+  .info-card a.link{color:var(--ink); text-underline-offset:3px}
+  .info-card a.link:hover{color:var(--accent)}
+  .list{padding-left:0; margin:0}
+  .list li{list-style:none; padding:10px 0; border-bottom:1px dashed rgba(0,0,0,.08)}
+  .list li:last-child{border-bottom:0}
+
+  /* ---- Address shards (inside Locations card) ---- */
+  .addr-wrap{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:6px}
+  .addr-card{
+    position:relative; overflow:hidden;
+    border:1px solid rgba(0,0,0,.08); border-radius:14px; padding:12px 14px; background:#fff;
+    box-shadow:0 10px 20px rgba(0,0,0,.06);
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .addr-card:hover{transform:translateY(-2px); box-shadow:0 16px 28px rgba(0,0,0,.08)}
+  .addr-card::after{
+    content:""; position:absolute; inset:-40% -20%;
+    background:linear-gradient(120deg, transparent 40%, rgba(255,255,255,.28) 50%, transparent 60%);
+    transform:translateX(-120%); pointer-events:none;
+  }
+  .addr-card:hover::after{animation:sheenAddr 1.2s ease}
+  @keyframes sheenAddr{to{transform:translateX(120%)}}
+  .addr-title{font-family: ui-sans-serif,system-ui; font-weight:800; font-size:14px; letter-spacing:.3px; margin:0 0 6px; color:#0b0b0b; text-transform:uppercase}
+  .addr-text{font-size:14px; color:#333; line-height:1.45; margin:0}
+
+  /* -----------------------------
+     Utilities & reveals
+  ------------------------------*/
+  .reveal{opacity:0; transform:translateY(12px); transition:opacity .6s ease, transform .6s ease}
+  .reveal.show{opacity:1; transform:none}
+
+  /* -----------------------------
+     Responsive
+  ------------------------------*/
+  @media (max-width: 1020px){
+    .contact-grid{grid-template-columns: 1fr}
+    .burst{right:8px; top:-18px; transform: scale(.9)}
+  }
+  @media (max-width: 900px){
+    .info-inner{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width: 700px){
+    .addr-wrap{grid-template-columns:1fr}
+  }
+  @media (max-width: 640px){
+    .contact-left .headline-giant{font-size:48px}
+    .faq h2{font-size:36px}
+    .form-row{grid-template-columns: 1fr}
+    .info-inner{grid-template-columns:1fr}
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="contact-hero">
+  <div class="contact-grid">
+    <div class="contact-left reveal">
+      <h1 class="headline-giant red">STILL CURIOUS?</h1>
+      <p>We hope you found everything you needed about Ayanant. But if you’ve got more questions (or just wanna talk tech & community), hit us up.</p>
+    </div>
+
+    <div class="contact-card reveal" role="form" aria-labelledby="contactTitle">
+      <!-- Burst badge -->
+      <div class="burst" aria-hidden="true">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="sheen"><feGaussianBlur stdDeviation="0.6"/></filter>
+          </defs>
+          <g>
+            <path d="M100 7l17 23 28-8 6 29 29 6-8 28 23 17-23 17 8 28-29 6-6 29-28-8-17 23-17-23-28 8-6-29-29-6 8-28-23-17 23-17-8-28 29-6 6-29 28 8z"
+              fill="#0a6f58"/>
+            <text x="100" y="82" text-anchor="middle" font-size="14">WE’RE ALL EARS</text>
+            <text x="100" y="102" text-anchor="middle" font-size="12">— AND EXTRA GUAC</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="form-row" id="contactTitle" style="margin-bottom:6px;">
+        <div class="eyebrow">Say hello</div>
+      </div>
+
+      <div class="form-row">
+        <input class="control" type="text" placeholder="First Name*" aria-label="First Name" required>
+        <input class="control" type="text" placeholder="Last Name*" aria-label="Last Name" required>
+      </div>
+      <div class="form-row">
+        <input class="control" type="email" placeholder="Email*" aria-label="Email" required>
+        <input class="control" type="tel" placeholder="Phone Number" aria-label="Phone Number">
+      </div>
+      <div class="form-row full">
+        <input class="control" list="reasons" placeholder="Contact Reason*" aria-label="Contact Reason" required>
+        <datalist id="reasons">
+          <option value="Partnership / Consulting"></option>
+          <option value="Product / Website Support"></option>
+          <option value="Careers / Internship"></option>
+          <option value="General Question"></option>
+        </datalist>
+      </div>
+      <div class="form-row full">
+        <textarea class="control" placeholder="How can we help you?" aria-label="Message"></textarea>
+      </div>
+
+      <p style="font-size:.9rem;color:var(--muted);margin:10px 4px 16px">
+        By submitting this form, you agree to our <a href="#" class="link">Terms &amp; Conditions</a> and understand that your information may be used in accordance with our privacy practices.
+      </p>
+
+      <button class="btn" id="submitBtn" type="button">Submit</button>
+    </div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="faq-inner">
+    <h2 class="headline-giant">YOU ASK, WE ANSWER</h2>
+
+    <div class="faq-list">
+      <!-- 1 -->
+      <div class="faq-item reveal">
+        <button class="faq-q" aria-expanded="false">
+          Can I collaborate with Ayanant on a project?
+          <i class="chev"></i>
+        </button>
+        <div class="faq-a" aria-hidden="true">
+          <div class="faq-a-inner">
+            Yes—Ayanant partners with organizations on digital products, rural development, FPO enablement and IT consulting. Share a brief in the form above and our team will reach out within 1–2 business days.
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 -->
+      <div class="faq-item reveal">
+        <button class="faq-q" aria-expanded="false">
+          Do you offer website or app development?
+          <i class="chev"></i>
+        </button>
+        <div class="faq-a" aria-hidden="true">
+          <div class="faq-a-inner">
+            We build modern web apps (Flask/Python, HTML/CSS/JS) and WordPress sites with pixel-perfect UI, dashboards, payments, OTP verification and role-based access. We can host and deploy on AWS Lightsail as well.
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 -->
+      <div class="faq-item reveal">
+        <button class="faq-q" aria-expanded="false">
+          Are your solutions scalable and secure?
+          <i class="chev"></i>
+        </button>
+        <div class="faq-a" aria-hidden="true">
+          <div class="faq-a-inner">
+            Yes. We follow clean architectures, environment-based configuration, HTTPS by default and hardened Nginx/Gunicorn stacks. We also design with performance budgets and responsive patterns for all devices.
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 -->
+      <div class="faq-item reveal">
+        <button class="faq-q" aria-expanded="false">
+          Do you provide ongoing maintenance and support?
+          <i class="chev"></i>
+        </button>
+        <div class="faq-a" aria-hidden="true">
+          <div class="faq-a-inner">
+            Absolutely. We offer retainers covering uptime monitoring, backups, SSL renewals, bug fixes, enhancements and monthly analytics/SEO reviews.
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 -->
+      <div class="faq-item reveal">
+        <button class="faq-q" aria-expanded="false">
+          How do I work at Ayanant?
+          <i class="chev"></i>
+        </button>
+        <div class="faq-a" aria-hidden="true">
+          <div class="faq-a-inner">
+            We’re always looking for passionate builders. Send your portfolio/GitHub via the form (choose “Careers / Internship”). If there’s a fit, we’ll schedule a quick chat.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="info-row">
+  <div class="info-inner">
+
+    <!-- Phones -->
+    <div class="info-card reveal">
+      <div class="pin-badge" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="#0a6f58" />
+          <path d="M60 65c-10-5-17-12-22-22l6-6-8-12-10 4c-1 10 6 22 14 30 8 8 20 15 30 14l4-10-12-8-6 6z" fill="#f1fff7"/>
+        </svg>
+      </div>
+      <h3 style="padding-top:30px;">Phones</h3>
+      <ul class="list">
+        <li><a class="link" href="tel:+913000000001">+91 97069 17657</a></li>
+        <li><a class="link" href="tel:+913000000002">+91 91013 78431</a></li>
+        <li><a class="link" href="tel:+913000000003">+91 97061 24634</a></li>
+        <li><a class="link" href="tel:+913000000004">+91 97072 51643</a></li>
+      </ul>
+    </div>
+
+    <!-- Social -->
+    <div class="info-card reveal">
+      <div class="pin-badge" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="#e7a13a" />
+          <circle cx="50" cy="44" r="14" fill="#fff" stroke="#1f2326" stroke-width="4"/>
+          <path d="M24 76c6-10 16-16 26-16s20 6 26 16" fill="none" stroke="#1f2326" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3 style="padding-top:30px;">Social</h3>
+      <p class="kicker">Follow Ayanant</p>
+      <div style="margin-top:8px">
+        <a class="icn" href="https://facebook.com/ayanant" aria-label="Facebook" target="_blank" rel="noopener">fb</a>
+        <a class="icn" href="https://instagram.com/ayanant" aria-label="Instagram" target="_blank" rel="noopener">ig</a>
+        <a class="icn" href="https://linkedin.com/company/ayanant" aria-label="LinkedIn" target="_blank" rel="noopener">in</a>
+        <a class="icn" href="https://x.com/ayanant" aria-label="X" target="_blank" rel="noopener">x</a>
+      </div>
+    </div>
+
+    <!-- Addresses (replacing simple list with two shards) -->
+    <div class="info-card reveal">
+      <div class="pin-badge" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="#cf202c" />
+          <path d="M50 20c-11 0-20 9-20 20 0 14 20 40 20 40s20-26 20-40c0-11-9-20-20-20zm0 28a8 8 0 110-16 8 8 0 010 16z" fill="#fff"/>
+        </svg>
+      </div>
+      <h3 style="padding-top:30px;">Addresses</h3>
+
+      <div class="addr-wrap">
+        <div class="addr-card">
+          <div class="addr-title">Office Address</div>
+          <p class="addr-text">
+            Ayanant Pvt. Ltd.<br>
+            House No.02, 2nd Floor, Bishnnujyoti Nagar Dharapur,<br>
+            Guwahati, Assam-781017
+          </p>
+        </div>
+
+        <div class="addr-card">
+          <div class="addr-title">NE-Locals Store</div>
+          <p class="addr-text">
+            Lohit Anupama Complex, Dharapur Chariali,<br>
+            Below SBI Building, Guwahati-17
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="back-home-section">
+  <style>
+    #back-home-section{
+      background:var(--bg,#f6f4ed);
+      color:var(--ink,#37392f);
+      text-align:center;
+      padding:clamp(40px,6vw,80px) clamp(16px,4vw,28px);
+      position:relative;
+      z-index:10;
+    }
+
+    #back-home-section .wrap{
+      width:min(100%,1200px);
+      margin-inline:auto;
+    }
+
+    #back-home-section .eyebrow{
+      display:inline-flex; align-items:center; gap:10px;
+      font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      color:var(--muted,#988e87); font-size:12px; margin-bottom:10px;
+    }
+    #back-home-section .eyebrow::before,
+    #back-home-section .eyebrow::after{
+      content:""; width:20px; height:2px; background:currentColor; opacity:.3;
+    }
+
+    #back-home-section .title{
+      font-family:"Bebas Neue",Inter,ui-sans-serif;
+      font-size:clamp(36px,6vw,68px);
+      letter-spacing:1px;
+      line-height:.95;
+      text-transform:uppercase;
+      margin:0 0 24px;
+      color:var(--ink,#37392f);
+    }
+
+    #back-home-section .back-home{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:#fff;
+      font-weight:800;
+      letter-spacing:.4px;
+      background:var(--red,#b33f36);
+      border-radius:999px;
+      padding:14px 26px;
+      box-shadow:0 6px 16px rgba(179,63,54,.25);
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    #back-home-section .back-home:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 22px rgba(179,63,54,.35);
+    }
+    #back-home-section .back-home:active{
+      transform:none;
+      box-shadow:0 6px 14px rgba(179,63,54,.25);
+    }
+    #back-home-section .back-home svg{
+      stroke:#fff;
+      width:20px;
+      height:20px;
+      transition:transform .25s ease;
+    }
+    #back-home-section .back-home:hover svg{
+      transform:translateX(-3px);
+    }
+
+    /* Reveal animation (matches site pattern) */
+    #back-home-section .reveal{
+      opacity:0;
+      transform:translateY(16px);
+      transition:opacity .6s ease, transform .6s ease;
+    }
+    #back-home-section .in{
+      opacity:1;
+      transform:none;
+    }
+  </style>
+
+  <div class="wrap">
+    <header class="reveal">
+      <div class="eyebrow" aria-hidden="true"></div>
+      <h2 class="title">Back&nbsp;Home</h2>
+    </header>
+
+    <a href="/" class="back-home magnet reveal" aria-label="Back to Home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      <span>Go&nbsp;Back&nbsp;Home</span>
+    </a>
+  </div>
+
+  <script>
+    // Reveal-on-scroll (matches existing observer)
+    (function(){
+      const root=document.getElementById('back-home-section');
+      if(!root) return;
+      const els=[...root.querySelectorAll('.reveal')];
+      if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('in')); return; }
+      const io=new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            e.target.classList.add('in');
+            io.unobserve(e.target);
+          }
+        });
+      },{threshold:.15});
+      els.forEach(el=>io.observe(el));
+    })();
+  </script>
+</section>
+
+
+<script>
+  // Button click ripple
+  const addRipple = (btn) => {
+    btn.addEventListener('click', function(e){
+      const r = document.createElement('span');
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      r.className = 'ripple';
+      r.style.width = r.style.height = size + 'px';
+      r.style.left = (e.clientX - rect.left - size/2) + 'px';
+      r.style.top  = (e.clientY - rect.top - size/2) + 'px';
+      this.appendChild(r);
+      setTimeout(()=> r.remove(), 600);
+    });
+  };
+  document.querySelectorAll('.btn').forEach(addRipple);
+
+  // Simple fake submit (visual feedback only)
+  const submit = document.getElementById('submitBtn');
+  if (submit){
+    submit.addEventListener('click', ()=>{
+      submit.disabled = true;
+      submit.textContent = 'Sending...';
+      submit.style.filter = 'saturate(.9) brightness(.95)';
+      setTimeout(()=>{
+        submit.textContent = 'Submitted ✓';
+        submit.style.filter = '';
+      }, 900);
+    });
+  }
+
+  // Accordion
+  const items = document.querySelectorAll('.faq-item');
+  items.forEach((it)=>{
+    const q = it.querySelector('.faq-q');
+    const a = it.querySelector('.faq-a');
+    q.addEventListener('click', ()=>{
+      const open = it.classList.contains('open');
+      // close others
+      items.forEach(x=>{
+        x.classList.remove('open');
+        x.querySelector('.faq-q').setAttribute('aria-expanded','false');
+        const el = x.querySelector('.faq-a');
+        el.style.maxHeight = null;
+        el.setAttribute('aria-hidden','true');
+      });
+      if(!open){
+        it.classList.add('open');
+        q.setAttribute('aria-expanded','true');
+        a.style.maxHeight = a.scrollHeight + 'px';
+        a.setAttribute('aria-hidden','false');
+      }
+    });
+    // allow keyboard interaction
+    q.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); q.click(); }
+    });
+  });
+
+  // Intersection reveal
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('show'); io.unobserve(e.target); }
+    });
+  }, {threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
+</script>
+{% endblock %}

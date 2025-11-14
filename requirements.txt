@@ -1,0 +1,15 @@
+# Core framework
+Flask==3.0.3
+
+# Security & middleware
+Flask-Talisman==1.1.0
+Flask-WTF==1.2.1
+Flask-Limiter==3.7.0
+Werkzeug==3.0.3
+
+# Server (use this to run in production)
+gunicorn==22.0.0
+
+# Optional (recommended for logging & proxy safety)
+itsdangerous==2.2.0
+click==8.1.7

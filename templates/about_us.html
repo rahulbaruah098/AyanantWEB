@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+
+{% block title %}Ayanant – Who we Are{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* ---------------------------------
+     Page-level safety for sticky
+  ----------------------------------*/
+  .site { transform: none !important; filter: none !important; }
+  main, #main, .site-content, .content, .page, .wrapper {
+    overflow: visible !important; transform: none !important; contain: none !important;
+  }
+
+  /* ---------------------------------
+     Theme tokens
+  ----------------------------------*/
+  :root{
+    --col-bg:#f4f4ec;
+    --col-ink:#24282a;
+    --col-red:#cf202c;
+    --col-yellow:#cd9542;
+    --col-green:#66a690;
+    --col-muted:#968e8c;
+    --nav-h: 0px;
+    --container:1200px;
+    --radius:16px;
+    --shadow: 0 10px 30px rgba(0,0,0,.06);
+  }
+
+  body{
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+    color:var(--col-ink); background:var(--col-bg); line-height:1.35;
+    padding-top:0 !important;
+  }
+
+  /* Hide only nav; footer stays */
+  .navbar, .navbar-location-mobile, .mobile-menu { display: none !important; }
+
+  /* ---------------------------------
+     Decorative header panels
+  ----------------------------------*/
+  .menu-panels{position:relative;height:16px}
+  .menu-panels .panel{position:absolute;left:0;top:-8px;height:16px;border-radius:8px;opacity:.9}
+  .panel-red{width:38%;background:var(--col-red)}
+  .panel-white{width:26%;left:40%;background:#fff}
+
+  /* ---------------------------------
+     Horizontal scrollytelling (slides 1–2)
+  ----------------------------------*/
+  .au-hero{position:relative}
+  .pin{
+    position: sticky; top: var(--nav-h);
+    height: calc(100svh - var(--nav-h)); overflow: hidden;
+  }
+  .horizontal{display:flex; height:100%; will-change: transform; transition: transform .05s linear;}
+  .slide{
+    min-width:100vw; height:100%; position:relative;
+    display:grid; place-items:center; padding:40px; isolation:isolate;
+  }
+  .au-slide-one{background:var(--col-bg)}
+  .au-slide-two{background:#fff}
+
+  /* Slide 1 content */
+  .au-slide-content-1{
+    display:grid; grid-template-columns:1.1fr 1fr; gap:40px; align-items:center;
+    max-width:var(--container); width:100%;
+  }
+  .au-who-1{font-family:"Bebas Neue Pro";color:var(--col-red);letter-spacing:.12em;font-size:18px}
+  .au-title-1{font-family:"Bebas Neue Pro";font-weight:700;font-size: clamp(28px, 4.8vw, 56px);line-height: .98;letter-spacing:.01em}
+  .au-description-1{margin-top:16px;font-size:18px;color:#3a3a3a;max-width:42ch}
+  .au-1-logo{position:absolute;right:max(40px,6vw);bottom:max(40px,4vh);width:clamp(160px,26vw,330px);opacity:.95}
+
+  /* Slide 2 content */
+  .au-text-2{max-width:var(--container);width:100%;display:grid;grid-template-columns:1fr}
+  .au-title-2{font-family:"Bebas Neue Pro";font-weight:700;font-size:clamp(32px,5.8vw,72px);line-height:.98}
+  .au-description-2{margin-top:14px;font-size:18px;color:#333;max-width:60ch}
+
+  /* Fade-ins */
+  .slide .au-who-1,.slide .au-title-1,.slide .au-description-1,
+  .slide .au-title-2,.slide .au-description-2,.au-1-logo{
+    opacity:0; transform:translateY(18px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .slide.is-active .au-who-1,
+  .slide.is-active .au-title-1,
+  .slide.is-active .au-description-1,
+  .slide.is-active .au-title-2,
+  .slide.is-active .au-description-2,
+  .slide.is-active .au-1-logo{opacity:1; transform:none}
+
+  /* ---------------------------------
+     Vertical section (Slide 3)
+     (Adjusted sizes to fit on 1920x1080)
+  ----------------------------------*/
+  .au-slide-three{background:var(--col-bg); padding:56px 20px}
+  .au-text-3{max-width:520px}
+  .au-title-3{
+    font-family:"Bebas Neue Pro";
+    font-weight:700;
+    font-size:clamp(26px,5.2vw,48px); /* ↓ smaller so it fits */
+    line-height:1;
+  }
+  .au-description-3{
+    margin-top:10px;
+    font-size:15px; /* ↓ smaller paragraph */
+    color:#333;
+  }
+  .au-image-3-2{
+    width:clamp(180px,60vw,560px); border-radius:12px; box-shadow:0 15px 50px rgba(0,0,0,.18);
+    margin:0 auto 18px
+  }
+
+  /* ---------------------------------
+     Values + Join (unchanged)
+  ----------------------------------*/
+  .section-values{background:#fff;padding:72px 20px}
+  .au-values-wrapper{
+    max-width:var(--container); margin:0 auto;
+    display:grid; grid-template-columns:repeat(3,1fr); gap:40px;
+  }
+  .au-value-item{
+    background:#fff; border:1px solid rgba(0,0,0,.06);
+    border-radius:var(--radius); padding:28px; box-shadow:var(--shadow);
+  }
+  .au-icon-wrapper{width:56px;height:56px;display:grid;place-items:center;border-radius:12px;background:#f7f7f1;margin-bottom:16px}
+  .au-value-title{font-family:"Bebas Neue Pro";font-size:28px;letter-spacing:.02em;margin-bottom:8px}
+  .au-value-text{color:#2f2f2f;font-size:16px;line-height:1.55}
+  .au-value-text strong{display:block;color:var(--col-red);margin-top:8px}
+
+  .au-join-us{background:var(--col-ink);color:#fff;padding:80px 20px}
+  .au-ju-main{
+    max-width:var(--container);margin:0 auto;
+    display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center
+  }
+  .au-ju-title{font-family:"Bebas Neue Pro";font-size:clamp(28px,5vw,56px);letter-spacing:.02em}
+  .au-ju-description{color:#ddd;max-width:68ch;margin-top:6px}
+  .au-ju-button{display:inline-block;border:2px solid var(--col-yellow);color:var(--col-yellow);padding:12px 18px;border-radius:10px;font-family:"Bebas Neue Pro";letter-spacing:.06em}
+  .au-ju-button:hover{background:var(--col-yellow);color:#1b1b1b}
+
+  .container{max-width:var(--container);margin:0 auto;padding:0 20px}
+
+  /* ---------------------------------
+     MOBILE POLISH
+     (looks great on iPhone SE 375px)
+  ----------------------------------*/
+  @media (max-width: 820px){
+    .slide{padding:32px 16px}
+    .au-slide-content-1{grid-template-columns:1fr; gap:18px; text-align:center}
+    .au-description-1{margin-inline:auto}
+    .au-1-logo{position:static; justify-self:center; width:min(54vw,240px); margin-top:10px}
+    .au-text-2{padding-inline:16px}
+    .au-title-2{letter-spacing:.01em}
+    .au-description-2{font-size:16px}
+    .au-image-3-2{width:min(82vw,480px)}
+    .section-values{padding:56px 16px}
+    .au-values-wrapper{grid-template-columns:1fr; gap:16px}
+    .au-value-item{padding:20px; border-radius:14px}
+    .au-icon-wrapper{width:48px;height:48px;border-radius:10px}
+    .au-value-title{font-size:24px}
+    .au-value-text{font-size:15px}
+    .au-ju-main{grid-template-columns:1fr; text-align:center; gap:16px}
+    .au-ju-button{justify-self:center}
+  }
+
+  @media (max-width: 420px){
+    .au-title-1{font-size:34px}
+    .au-title-2{font-size:30px}
+    .au-title-3{font-size:8px}
+    .au-description-1,.au-description-2,.au-description-3{font-size:15px}
+    .au-value-title{font-size:22px}
+    .au-value-item{padding:18px; border-radius:12px}
+    .panel-red{width:46%}
+    .panel-white{left:48%; width:30%}
+  }
+
+  /* Safe-area padding for iOS bottom bars */
+  @supports (padding: max(0px)) {
+    .au-join-us { padding-bottom: max(80px, env(safe-area-inset-bottom)); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+  <!-- Decorative panels -->
+  <div class="menu-panels" aria-hidden="true">
+    <div class="panel panel-red"></div>
+    <div class="panel panel-white"></div>
+  </div>
+
+  <!-- HORIZONTAL PHASE (Slides 1–2) -->
+  <section class="au-hero" id="au-hero" aria-label="About us highlights">
+  <div class="pin">
+    <div class="horizontal" id="horizontal">
+      <!-- Slide 1 -->
+      <section class="slide au-slide-one is-active">
+        <div class="au-slide-content-1">
+          <div class="au-text-1">
+            <div class="au-who-1">ABOUT US</div>
+            <h2 class="au-title-1">AYANANT VENTURES PVT. LTD. — EMPOWERING LIVELIHOODS SINCE 2018</h2>
+            <p class="au-description-1">
+              Ayanant Ventures Pvt Ltd. is a visionary social enterprise born in 2018. We cultivate a supportive
+              ecosystem that empowers small-scale entrepreneurs and enterprises, paving the way for sustainable
+              livelihood opportunities. Our journey is marked by empowerment, sustainability, and transformation—making
+              a profound, lasting difference in the lives of those we serve, one step at a time.
+            </p>
+          </div>
+          <div></div>
+          <img src="static/ayanant_logo.png" alt="Ayanant Ventures logo" class="au-1-logo" />
+        </div>
+      </section>
+
+      <!-- Slide 2 -->
+      <section class="slide au-slide-two">
+        <div class="au-text-2 container">
+          <h2 class="au-title-2">TRANSFORMING AGRI-MARKETS THROUGH PARTNERSHIPS</h2>
+          <p class="au-description-2">
+            We focus on strengthening market development for agricultural and allied products. Our approach hinges on
+            strategic partnerships with FPOs, community organizations, NGOs, and government entities. Together, we build
+            the resilience of small producers by improving their production and marketing systems—backed by access to
+            premium inputs, cutting-edge technology, robust information management systems, and unwavering market
+            support. Our vision is clear: help smallholders elevate practices and thrive in dynamic markets.
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- VERTICAL PHASE (Slide 3 below) -->
+<section class="slide au-slide-three">
+  <img class="au-image-3-2" src="static/intro.jpg" alt="Farmers and markets" />
+  <div class="au-text-3 container">
+    <h2 class="au-title-3">AYANANT’S INTERVENTION — THE JOURNEY OF A SMALL FARMER</h2>
+    <p class="au-description-3">
+      <strong>1 — Crop Introduction:</strong> New crop varieties suited to local conditions are introduced by
+      partner organizations and government bodies, offering higher yields and disease resistance.<br>
+      <strong>2 — Training &amp; Capacity Building:</strong> Farmers receive practical training on soil, pests, and
+      harvesting; FIGs/SHGs enable collective learning and support.<br>
+      <strong>3 — Financial Support:</strong> Subsidies, grants, and loans bridge capital gaps so farmers can adopt
+      improved practices and scale sustainably.<br>
+      <strong>4 — Technological Assistance:</strong> Access to better seeds, fertilizers, tools, and advisory
+      services boosts productivity and resilience.<br>
+      <strong>5 — Marketing:</strong> While larger farmers may have buyer contracts, smallholders often lack market
+      linkages. We help them connect to stable, fair markets for their produce.
+    </p>
+  </div>
+</section>
+
+<!-- Values (unchanged) -->
+<div class="next-block section-values">
+  <div class="au-values-wrapper">
+    <div class="au-value-item">
+      <div class="au-icon-wrapper">
+        <img src="https://ext.same-assets.com/4030929371/3943061552.svg" alt="Growth icon" width="50" height="45" />
+      </div>
+      <h3 class="au-value-title">Empowerment</h3>
+      <p class="au-value-text">
+        We enable small producers and entrepreneurs with access to inputs, knowledge, finance and markets—so they can grow with confidence and dignity.
+        <strong>People first, capacity always.</strong>
+      </p>
+    </div>
+
+    <div class="au-value-item">
+      <div class="au-icon-wrapper">
+        <img src="https://ext.same-assets.com/4030929371/2810966883.svg" alt="Sustainability icon" width="50" height="29" />
+      </div>
+      <h3 class="au-value-title">Sustainability</h3>
+      <p class="au-value-text">
+        Our interventions strengthen resilient production and marketing systems that protect resources and support long-term livelihoods.
+        <strong>Do good, last long.</strong>
+      </p>
+    </div>
+
+    <div class="au-value-item">
+      <div class="au-icon-wrapper">
+        <img src="https://ext.same-assets.com/4030929371/4103843897.svg" alt="Transformation icon" width="50" height="45" />
+      </div>
+      <h3 class="au-value-title">Transformation</h3>
+      <p class="au-value-text">
+        Through partnerships with FPOs, communities, NGOs and government, we turn potential into impact—at scale.
+        <strong>Better systems, better outcomes.</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+  <!-- Join Us -->
+  <section class="au-join-us">
+    <div class="au-ju-main">
+      <div class="au-ju-text">
+        <h2 class="au-ju-title">JOIN THE FAMILY</h2>
+        <p class="au-ju-description">IF YOU’RE INTERESTED IN JOINING OUR AMAZING TEAM AND WORKING WITH US, PLEASE REACH OUT AND FILL OUR FORM. WE ARE SUPER EXCITED TO HEAR FROM YOU !</p>
+      </div>
+      <a href="/career" class="au-ju-button" aria-label="Join the family of TMG">REACH OUT</a>
+    </div>
+  </section>
+
+  <section id="back-home-section">
+  <style>
+    #back-home-section{
+      background:var(--bg,#f6f4ed);
+      color:var(--ink,#37392f);
+      text-align:center;
+      padding:clamp(40px,6vw,80px) clamp(16px,4vw,28px);
+      position:relative;
+      z-index:10;
+    }
+
+    #back-home-section .wrap{
+      width:min(100%,1200px);
+      margin-inline:auto;
+    }
+
+    #back-home-section .eyebrow{
+      display:inline-flex; align-items:center; gap:10px;
+      font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      color:var(--muted,#988e87); font-size:12px; margin-bottom:10px;
+    }
+    #back-home-section .eyebrow::before,
+    #back-home-section .eyebrow::after{
+      content:""; width:20px; height:2px; background:currentColor; opacity:.3;
+    }
+
+    #back-home-section .title{
+      font-family:"Bebas Neue",Inter,ui-sans-serif;
+      font-size:clamp(36px,6vw,68px);
+      letter-spacing:1px;
+      line-height:.95;
+      text-transform:uppercase;
+      margin:0 0 24px;
+      color:var(--ink,#37392f);
+    }
+
+    #back-home-section .back-home{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:#fff;
+      font-weight:800;
+      letter-spacing:.4px;
+      background:var(--red,#b33f36);
+      border-radius:999px;
+      padding:14px 26px;
+      box-shadow:0 6px 16px rgba(179,63,54,.25);
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    #back-home-section .back-home:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 22px rgba(179,63,54,.35);
+    }
+    #back-home-section .back-home:active{
+      transform:none;
+      box-shadow:0 6px 14px rgba(179,63,54,.25);
+    }
+    #back-home-section .back-home svg{
+      stroke:#fff;
+      width:20px;
+      height:20px;
+      transition:transform .25s ease;
+    }
+    #back-home-section .back-home:hover svg{
+      transform:translateX(-3px);
+    }
+
+    /* Reveal animation (matches site pattern) */
+    #back-home-section .reveal{
+      opacity:0;
+      transform:translateY(16px);
+      transition:opacity .6s ease, transform .6s ease;
+    }
+    #back-home-section .in{
+      opacity:1;
+      transform:none;
+    }
+  </style>
+
+  <div class="wrap">
+    <header class="reveal">
+      <div class="eyebrow" aria-hidden="true">Navigation</div>
+      <h2 class="title">Back&nbsp;Home</h2>
+    </header>
+
+    <a href="/" class="back-home magnet reveal" aria-label="Back to Home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      <span>Go&nbsp;Back&nbsp;Home</span>
+    </a>
+  </div>
+
+  <script>
+    // Reveal-on-scroll (matches existing observer)
+    (function(){
+      const root=document.getElementById('back-home-section');
+      if(!root) return;
+      const els=[...root.querySelectorAll('.reveal')];
+      if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('in')); return; }
+      const io=new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            e.target.classList.add('in');
+            io.unobserve(e.target);
+          }
+        });
+      },{threshold:.15});
+      els.forEach(el=>io.observe(el));
+    })();
+  </script>
+</section>
+  <!-- Always-on script -->
+  <script>
+  (function(){
+    const NAV_H = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 0;
+
+    const section = document.getElementById('au-hero');
+    const pin = section ? section.querySelector('.pin') : null;
+    const horizontal = document.getElementById('horizontal');
+    const slides = horizontal ? Array.from(horizontal.querySelectorAll('.slide')) : [];
+
+    if (!section || !pin || !horizontal || !slides.length) return;
+
+    const enableHorizontal = () => true;
+
+    function setHeights(){
+      if(!enableHorizontal()){ section.style.height='auto'; return; }
+      const slideCount = slides.length;
+      const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+      section.style.height = (vh * slideCount) + 'px';
+      pin.style.height = `calc(${vh}px - ${NAV_H}px)`;
+    }
+
+    const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+
+    function updateActiveSlide(progress){
+      const idx = Math.round(progress * (slides.length - 1));
+      slides.forEach((s,i)=>s.classList.toggle('is-active', i===idx));
+    }
+
+    function onScroll(){
+      const rect = section.getBoundingClientRect();
+      const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+      const pinH = vh - NAV_H;
+      const maxScroll = rect.height - pinH;
+      const scrolled = clamp(-rect.top, 0, Math.max(1, maxScroll));
+      const progress = scrolled / Math.max(1, maxScroll);
+      const totalShift = horizontal.scrollWidth - window.innerWidth;
+      const x = -totalShift * progress;
+      horizontal.style.transform = `translate3d(${x}px,0,0)`;
+      updateActiveSlide(progress);
+    }
+
+    const io = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('is-active'); });
+    },{threshold:0.25}) : null;
+    if(io) slides.forEach(s=>io.observe(s));
+
+    let rAF=null;
+    function onResize(){
+      if(rAF) cancelAnimationFrame(rAF);
+      rAF = requestAnimationFrame(()=>{ setHeights(); onScroll(); });
+    }
+
+    if (window.visualViewport) {
+      visualViewport.addEventListener('resize', onResize, {passive:true});
+      visualViewport.addEventListener('scroll', onResize, {passive:true});
+    }
+    window.addEventListener('resize', onResize, {passive:true});
+    window.addEventListener('orientationchange', onResize, {passive:true});
+    window.addEventListener('scroll', ()=>requestAnimationFrame(onScroll), {passive:true});
+
+    setHeights();
+    onScroll();
+  })();
+  </script>
+{% endblock %}

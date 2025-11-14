@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+{% block title %}Ayanant • Careers · Design Associate{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* ---------------------------------
+     Page tokens (match existing site)
+  ----------------------------------*/
+  :root{
+    --bg:#f6f4ed;           /* light cream */
+    --ink:#37392f;          /* body text */
+    --muted:#988e87;        /* secondary text */
+    --red:#b33f36;          /* brand accent */
+    --green:#0e7a61;        /* brand secondary */
+    --radius:16px;
+    --shadow:0 10px 30px rgba(0,0,0,.08);
+    --container:1200px;
+  }
+  .site{filter:none!important;transform:none!important}
+
+  /* ---------------------------------
+     Hero
+  ----------------------------------*/
+  .career-hero{position:relative; isolation:isolate; color:var(--ink); background:var(--bg);}
+  .career-hero .hero-wrap{width:min(100%,var(--container)); margin-inline:auto; padding:clamp(48px,8vw,96px) clamp(16px,4vw,28px); display:grid; gap:18px; align-items:center}
+  .career-hero .hero-bg{position:absolute; inset:0; z-index:-2; width:100%; height:100%; object-fit:cover; filter:saturate(1.08)}
+  .career-hero::after{content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(to bottom, rgba(255,255,255,.60), rgba(246,244,237,.92) 40%, var(--bg) 70%)}
+  .career-eyebrow{display:inline-flex; align-items:center; gap:10px; color:var(--muted); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:12px}
+  .career-eyebrow::before,.career-eyebrow::after{content:""; width:20px; height:2px; background:currentColor; opacity:.3}
+  .career-title{font-family:"Bebas Neue", Inter, ui-sans-serif; font-size:clamp(40px,8vw,96px); line-height:.92; letter-spacing:1px; text-transform:uppercase; color:var(--red); text-shadow:0 2px 0 rgba(255,255,255,.45)}
+  .career-sub{color:var(--muted); max-width:70ch}
+  .career-cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:6px}
+  .btn{--bgc:var(--red); --bgh:#9e352d; background:var(--bgc); color:#fff; border:0; border-radius:999px; padding:12px 18px; font-weight:800; letter-spacing:.04em; cursor:pointer; box-shadow:0 6px 16px rgba(179,63,54,.28); transition:transform .18s ease, background .18s ease}
+  .btn:hover{background:var(--bgh); transform:translateY(-1px)}
+  .btn.secondary{--bgc:#fff; --bgh:#fff; color:var(--ink); border:1px solid rgba(0,0,0,.08); box-shadow:var(--shadow)}
+
+  /* ---------------------------------
+     Divider ribbon (thin animated)
+  ----------------------------------*/
+  .motif{height:6px; background:repeating-linear-gradient(120deg, rgba(179,63,54,.85) 0 12px, rgba(179,63,54,.85) 12px 16px, #fff 16px 28px, #fff 28px 32px); background-size:56px 100%; animation:motif-move 8s linear infinite; box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 6px 14px rgba(0,0,0,.08)}
+  @keyframes motif-move{from{background-position:0 0} to{background-position:-560px 0}}
+
+  /* ---------------------------------
+     Roles (No Openings state)
+  ----------------------------------*/
+  .roles{background:var(--bg); color:var(--ink)}
+  .roles .wrap{width:min(100%,var(--container)); margin-inline:auto; padding:clamp(36px,6vw,72px) clamp(16px,4vw,28px)}
+  .roles header{display:grid; gap:10px; margin-bottom:clamp(18px,2.8vw,28px)}
+  .roles h2{font-family:"Bebas Neue", Inter, ui-sans-serif; font-size:clamp(28px,5.6vw,64px); letter-spacing:1px; text-transform:uppercase}
+  .empty{background:#fff; border:1px dashed rgba(0,0,0,.18); border-radius:var(--radius); box-shadow:var(--shadow); padding:clamp(18px,3vw,24px); display:grid; gap:8px}
+  .empty .kicker{color:var(--red); font-weight:900; letter-spacing:.12em; text-transform:uppercase; font-size:11px}
+  .empty p{color:var(--muted)}
+  .empty .row{display:flex; gap:10px; flex-wrap:wrap}
+  .empty .row .btn.secondary{background:#fff}
+
+  /* ---------------------------------
+     Application Form
+  ----------------------------------*/
+  .apply{background:var(--bg); color:var(--ink)}
+  .apply .wrap{width:min(100%,var(--container)); margin-inline:auto; padding:clamp(36px,6vw,72px) clamp(16px,4vw,28px)}
+  .apply h2{font-family:"Bebas Neue", Inter, ui-sans-serif; font-size:clamp(28px,5.6vw,56px); text-transform:uppercase}
+  .form{background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:var(--radius); box-shadow:var(--shadow); padding:clamp(18px,3vw,24px); display:grid; gap:16px}
+  .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:clamp(14px,2.2vw,22px)}
+  .field{display:grid; gap:6px}
+  .label{font-size:13px; color:var(--muted)}
+  .input, .select, .textarea, .file{
+    border:1px solid rgba(0,0,0,.08); border-radius:12px; padding:12px 12px;
+    background:#fff; color:var(--ink); font:inherit; outline:none;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6);
+    width:100%;
+    font-size:16px; /* prevent iOS zoom */
+    line-height:1.25;
+  }
+  .textarea{min-height:110px; resize:vertical}
+  .form .actions{display:flex; gap:10px; flex-wrap:wrap}
+
+  /* ---- Extra small refinements for long values on mobile ---- */
+  .input::placeholder,
+  .textarea::placeholder{color:rgba(0,0,0,.45)}
+
+  /* ---------------------------------
+     Future Openings Board
+  ----------------------------------*/
+  .future{background:var(--bg); color:var(--ink)}
+  .future .wrap{width:min(100%,var(--container)); margin-inline:auto; padding:clamp(36px,6vw,72px) clamp(16px,4vw,28px)}
+  .future h2{font-family:"Bebas Neue", Inter, ui-sans-serif; font-size:clamp(28px,5.6vw,56px); text-transform:uppercase}
+  .board{display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(14px,2.2vw,22px)}
+  .post{background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; display:grid; gap:8px}
+  .post .kicker{color:var(--red); font-weight:900; letter-spacing:.12em; text-transform:uppercase; font-size:11px}
+  .post h3{margin:0; font-size:18px}
+  .post p{margin:0; color:var(--muted); font-size:14px}
+  .motif{ display:none !important; }
+  .btn, .btn:link, .btn:visited, .btn:hover, .btn:focus { text-decoration: none !important; }
+
+  /* ---------------------------------
+     Reveal on scroll (scoped)
+  ----------------------------------*/
+  .cr-reveal{opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease}
+  .cr-in{opacity:1; transform:translateY(0)}
+
+  /* ---------------------------------
+     RESPONSIVE TWEAKS
+     (focus: Apply section mobile experience)
+  ----------------------------------*/
+  /* Tablets and below */
+  @media (max-width: 980px){
+    .form{padding:clamp(16px,4vw,22px)}
+  }
+
+  /* Stack the form grid at 720px (kept) */
+  @media (max-width: 720px){
+    .grid{grid-template-columns:1fr}
+    .form{gap:14px}
+    .label{font-size:12px}
+    .form .actions{flex-direction:column}
+    .form .actions .btn{width:100%; padding:14px 18px}
+  }
+
+  /* Very small phones */
+  @media (max-width: 420px){
+    .apply .wrap{padding:28px 14px}
+    .career-cta .btn{width:100%; text-align:center}
+    .input, .select, .textarea, .file{padding:13px 12px}
+    .form{border-radius:12px}
+  }
+</style>
+
+<script defer>
+  // Reveal-on-scroll for this page only
+  document.addEventListener('DOMContentLoaded', function(){
+    const els = Array.from(document.querySelectorAll('.cr-reveal'));
+    if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('cr-in')); return; }
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('cr-in'); io.unobserve(e.target); } });
+    }, { threshold:0.12 });
+    els.forEach(el=>io.observe(el));
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+  <!-- Hero -->
+  <section class="career-hero">
+    <video class="hero-bg" autoplay muted loop playsinline src="{{ url_for('static', filename='herovid4.mp4') }}"></video>
+    <div class="hero-wrap cr-reveal">
+      <div class="career-eyebrow">Work at Ayanant</div>
+      <h1 class="career-title">Where Business Meets Purpose.</h1>
+      <p class="career-sub">At Ayanant, From branding and packaging to rural consulting and market linkage — Ayanant helps ideas find their voice and ventures find their way.</p>
+      <div class="career-cta">
+        <a class="btn" href="#open-roles">Current status</a>
+        <a class="btn secondary" href="#apply">Share your resume</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="gamusa-road">
+    <style>
+      /* Assamese Gamusa "road" */
+      #gamusa-road{ --img: url("static/gamu.jpeg"); }
+      #gamusa-road{position:relative;margin:0;padding:0}
+      #gamusa-road .lane{
+        position:relative; width:100%; height:56px; overflow:hidden;
+        background:
+          linear-gradient(#b30000,#b30000) top/100% 3px no-repeat,
+          linear-gradient(#b30000,#b30000) bottom/100% 3px no-repeat,
+          #fff;
+        box-shadow: inset 0 8px 16px rgba(0,0,0,.04), inset 0 -8px 16px rgba(0,0,0,.04);
+      }
+      #gamusa-road .lane::after{
+        content:""; position:absolute; left:0; right:0; top:3px; bottom:3px;
+        background-image: var(--img);
+        background-repeat: repeat-x;
+        background-position: 0 50%;
+        background-size: auto 100%;
+        animation: gamusa-move 12s linear infinite;
+        mix-blend-mode: normal;
+      }
+      #gamusa-road .lane::before{
+        content:""; position:absolute; inset:3px 0;
+        pointer-events:none;
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+                mask-image: linear-gradient(90deg, transparent, #000 8%, transparent);
+        background: rgba(255,255,255,.0);
+      }
+      @keyframes gamusa-move{
+        from { background-position: 0 50%; }
+        to   { background-position: -1200px 50%; }
+      }
+      @media (max-width:720px){
+        #gamusa-road .lane{ height:44px; }
+      }
+    </style>
+    <div class="lane" aria-hidden="true"></div>
+  </section>
+
+  <!-- Open Roles (No openings state) -->
+  <section id="open-roles" class="roles">
+    <div class="wrap">
+      <header class="cr-reveal">
+        <h2>Open Roles</h2>
+        <p class="career-sub">We’re not hiring for new positions right now. You can still send us your resume—when a role opens that fits, we’ll reach out.</p>
+      </header>
+
+      <div class="empty cr-reveal">
+        <div class="kicker">No Openings</div>
+        <h3 style="margin:0">There are no roles available at the moment.</h3>
+        <p>We update this page as soon as positions open. In the meantime, share your CV and portfolio so we can keep you in mind.</p>
+        <div class="row">
+          <a class="btn" href="#apply">Send Resume</a>
+          <a class="btn secondary" href="info@ayanant.com?subject=General%20Application&body=Please%20attach%20your%20CV%20and%20portfolio%20links.">Email Us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Application Form -->
+  <section id="apply" class="apply">
+    <div class="wrap">
+      <h2 class="cr-reveal">Share Your Resume</h2>
+      <p class="career-sub cr-reveal">Tell us about you. We’ll review and get in touch when we find a match.</p>
+
+      <form class="form cr-reveal" method="post" action="/apply" enctype="multipart/form-data">
+        <div class="grid">
+          <div class="field">
+            <label class="label" for="full_name">Full Name</label>
+            <input class="input" type="text" id="full_name" name="full_name" placeholder="Rahul Baruah" required>
+          </div>
+          <div class="field">
+            <label class="label" for="email">Email</label>
+            <input class="input" type="email" id="email" name="email" placeholder="you@example.com" required>
+          </div>
+
+          <div class="field">
+            <label class="label" for="phone">Phone</label>
+            <input class="input" type="tel" id="phone" name="phone" placeholder="+91-XXXXXXXXXX" required>
+          </div>
+          <div class="field">
+            <label class="label" for="portfolio">Portfolio / LinkedIn (optional)</label>
+            <input class="input" type="url" id="portfolio" name="portfolio" placeholder="https://…">
+          </div>
+
+          <div class="field">
+            <label class="label" for="address">Address</label>
+            <input class="input" type="text" id="address" name="address" placeholder="Street address" required>
+          </div>
+          <div class="field">
+            <label class="label" for="city">City</label>
+            <input class="input" type="text" id="city" name="city" placeholder="Guwahati" required>
+          </div>
+
+          <div class="field">
+            <label class="label" for="state">State</label>
+            <input class="input" type="text" id="state" name="state" placeholder="Assam" required>
+          </div>
+          <div class="field">
+            <label class="label" for="pincode">PIN Code</label>
+            <input class="input" type="text" id="pincode" name="pincode" placeholder="781001" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="about">About You</label>
+          <textarea class="textarea" id="about" name="about" placeholder="A short note about your skills, tools, and interests…"></textarea>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label class="label" for="resume">Resume (PDF)</label>
+            <input class="file" type="file" id="resume" name="resume" accept=".pdf" required>
+          </div>
+          <div class="field">
+            <label class="label" for="role_interest">Role Interest (optional)</label>
+            <input class="input" type="text" id="role_interest" name="role_interest" placeholder="e.g., Design Associate, Frontend, Content">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" type="submit">Submit Application</button>
+          <a class="btn secondary" href="mailto:careers@ayanant.in?subject=General%20Application&body=Please%20attach%20your%20CV%20and%20portfolio%20links.">Email Instead</a>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section id="back-home-section">
+    <style>
+      #back-home-section{
+        background:var(--bg,#f6f4ed);
+        color:var(--ink,#37392f);
+        text-align:center;
+        padding:clamp(40px,6vw,80px) clamp(16px,4vw,28px);
+        position:relative;
+        z-index:10;
+      }
+      #back-home-section .wrap{ width:min(100%,1200px); margin-inline:auto; }
+      #back-home-section .eyebrow{
+        display:inline-flex; align-items:center; gap:10px;
+        font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+        color:var(--muted,#988e87); font-size:12px; margin-bottom:10px;
+      }
+      #back-home-section .eyebrow::before,
+      #back-home-section .eyebrow::after{ content:""; width:20px; height:2px; background:currentColor; opacity:.3; }
+      #back-home-section .title{
+        font-family:"Bebas Neue",Inter,ui-sans-serif;
+        font-size:clamp(36px,6vw,68px);
+        letter-spacing:1px; line-height:.95; text-transform:uppercase;
+        margin:0 0 24px; color:var(--ink,#37392f);
+      }
+      #back-home-section .back-home{
+        display:inline-flex; align-items:center; gap:10px; text-decoration:none; color:#fff; font-weight:800; letter-spacing:.4px;
+        background:var(--red,#b33f36); border-radius:999px; padding:14px 26px;
+        box-shadow:0 6px 16px rgba(179,63,54,.25);
+        transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+      }
+      #back-home-section .back-home:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(179,63,54,.35); }
+      #back-home-section .back-home:active{ transform:none; box-shadow:0 6px 14px rgba(179,63,54,.25); }
+      #back-home-section .back-home svg{ stroke:#fff; width:20px; height:20px; transition:transform .25s ease; }
+      #back-home-section .back-home:hover svg{ transform:translateX(-3px); }
+      #back-home-section .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+      #back-home-section .in{ opacity:1; transform:none; }
+    </style>
+
+    <div class="wrap">
+      <header class="reveal">
+        <div class="eyebrow" aria-hidden="true">Navigation</div>
+        <h2 class="title">Back&nbsp;Home</h2>
+      </header>
+
+      <a href="/" class="back-home magnet reveal" aria-label="Back to Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        <span>Go&nbsp;Back&nbsp;Home</span>
+      </a>
+    </div>
+
+    <script>
+      (function(){
+        const root=document.getElementById('back-home-section');
+        if(!root) return;
+        const els=[...root.querySelectorAll('.reveal')];
+        if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('in')); return; }
+        const io=new IntersectionObserver((entries)=>{
+          entries.forEach(e=>{
+            if(e.isIntersecting){
+              e.target.classList.add('in');
+              io.unobserve(e.target);
+            }
+          });
+        },{threshold:.15});
+        els.forEach(el=>io.observe(el));
+      })();
+    </script>
+  </section>
+{% endblock %}

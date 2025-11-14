@@ -1,0 +1,14 @@
+2025-11-12 15:52:32,348 [INFO] REQ GET / from 127.0.0.1
+2025-11-12 15:52:32,460 [INFO] REQ GET /static/ayanant_logo.png from 127.0.0.1
+2025-11-12 15:52:32,595 [INFO] REQ GET /static/store1.jpg from 127.0.0.1
+2025-11-12 15:52:32,774 [INFO] REQ GET /static/store5.jpg from 127.0.0.1
+2025-11-12 15:52:32,775 [INFO] REQ GET /static/store4.jpg from 127.0.0.1
+2025-11-12 15:52:32,776 [INFO] REQ GET /static/store3.jpg from 127.0.0.1
+2025-11-12 15:52:32,778 [INFO] REQ GET /static/store2.jpg from 127.0.0.1
+2025-11-12 15:52:32,857 [INFO] REQ GET /static/store6.jpg from 127.0.0.1
+2025-11-12 15:52:32,969 [INFO] REQ GET /static/gamu.jpeg from 127.0.0.1
+2025-11-12 15:52:33,198 [INFO] REQ GET /static/herovid4.mp4 from 127.0.0.1
+2025-11-12 15:52:33,517 [INFO] REQ GET /static/herovid4.mp4 from 127.0.0.1
+2025-11-12 15:52:33,769 [INFO] REQ GET /static/ayanant_logo.png from 127.0.0.1
+2025-11-12 15:52:33,865 [INFO] REQ GET /static/herovid4.mp4 from 127.0.0.1
+2025-11-12 15:52:33,891 [INFO] REQ GET /static/herovid4.mp4 from 127.0.0.1

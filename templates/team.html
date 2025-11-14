@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% block title %}Ayanant • Our Team{% endblock %}
+
+{% block head_extra %}
+<style>
+  :root{
+    --bg:#f4efe4; --ink:#1f2326; --muted:#6d6b68;
+    --brand:#0e7a61; --radius:22px;
+    --shadow-1:0 10px 28px rgba(0,0,0,.10);
+    --shadow-2:0 16px 48px rgba(0,0,0,.16);
+    --tile:260px; /* desktop tile size */
+  }
+  .site{filter:none!important;transform:none!important}
+  html,body{height:100%} body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+
+  /* ===== Hero (unchanged) ===== */
+  .hero{min-height:72svh;display:grid;align-content:center;gap:28px;
+    padding:clamp(18px,5vw,42px);position:relative;overflow:hidden}
+  .hero-illus{position:absolute;inset:-10% -6% -20% -6%;z-index:0;pointer-events:none}
+  .hero-illus svg{width:100%;height:100%;opacity:.28}
+  .hero-inner{position:relative;z-index:1;max-width:1100px}
+  .kicker{display:inline-flex;gap:10px;align-items:center;text-transform:uppercase;
+    letter-spacing:.12em;font-weight:700;font-size:12px;color:var(--muted)}
+  .kicker::before,.kicker::after{content:"";width:24px;height:2px;background:currentColor;opacity:.5}
+  .headline{font-family:"Bebas Neue",system-ui,sans-serif;font-size:clamp(40px,7.4vw,96px);line-height:.94}
+  .tagline{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:70ch}
+  .tagline b{color:var(--ink)}
+
+  /* ===== Team Grid ===== */
+  .team-wrap{padding:clamp(16px,4vw,40px)}
+  .team-grid{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px;justify-items:center;
+    max-width:1200px;margin:0 auto;
+  }
+  @media (max-width:1200px){.team-grid{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:880px){:root{--tile:220px}.team-grid{grid-template-columns:repeat(2,1fr);gap:28px}}
+  @media (max-width:560px){:root{--tile:170px}.team-grid{grid-template-columns:1fr;gap:22px}}
+
+  .shard{
+    width:var(--tile);
+    display:grid;grid-template-rows:auto auto auto;gap:8px; /* +tagline row */
+    perspective:1200px; /* used for the image flip only */
+  }
+.tile{
+  position: relative; width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 18px; overflow: hidden; background: #e6edf4;
+  box-shadow: var(--shadow-1);
+  /* performance: keep animations in the compositor */
+  transition: transform .28s ease;              /* no box-shadow/filter animation */
+  will-change: transform, box-shadow;
+  transform: translateZ(0);
+  contain: content;                              /* contain layout/paint inside tile */
+}
+.tile:hover{
+  transform: translateY(-2px);                   /* cheap, smooth hover feel */
+  box-shadow: var(--shadow-2);                   /* snap change, not animated */
+}
+
+.ph, .flip{
+  position: absolute; inset: 0;
+  /* performance: own layers for opacity/transform */
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.ph{
+  transition: transform .38s ease, opacity .28s ease;  /* slightly snappier */
+  transform-origin: center;
+}
+  .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;transform:scale(1.02)}
+  /* Tagline layer (shown on hover) */
+  .flip{
+    display:grid;place-items:center;background:rgba(255,255,255,.92);
+    color:#111;text-align:center;padding:16px;
+    opacity:0;transform:scale(.98);
+    transition: opacity .28s ease, transform .28s ease;
+    /* no rotate for the text layer */
+    font-weight:700;letter-spacing:.02em;
+  }
+  .flip-tag{font-size:16px;line-height:1.35;color:#2c2b29;max-width:22ch;margin:0 auto}
+
+  /* Hover behavior ONLY on hover-capable devices:
+     - image flips and fades out
+     - tagline fades in */
+  @media (hover:hover){
+    .tile:hover .ph{transform:rotateY(180deg) scale(1.02);opacity:0}
+    .tile:hover .flip{opacity:1;transform:scale(1)}
+  }
+
+  .name{
+    text-align:center;font-family:"Bebas Neue",system-ui,sans-serif;
+    font-size:28px;letter-spacing:.6px;
+  }
+  /* Mobile tagline below name */
+  .tag{
+    display:none;text-align:center;color:var(--muted);font-size:13px;line-height:1.25;
+  }
+  @media (max-width:560px){
+    .tag{display:block}
+  }
+
+  /* ===== Reveal on scroll (gentle) ===== */
+.reveal{
+  opacity: 0;
+  transform: translateY(16px) scale(.98);
+  transition: opacity .6s ease, transform .6s ease;   /* no filter */
+}
+.reveal.in{
+  opacity: 1;
+  transform: none;
+}
+
+  /* ===== Circle roll-out overlay on click ===== */
+  .overlay{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;transition:opacity .35s ease .05s}
+  .overlay.on{pointer-events:auto;opacity:1}
+  .overlay-bg{
+    position:absolute;inset:0;background:#111;
+    clip-path:circle(0px at var(--cx,50%) var(--cy,50%));
+    transition:clip-path .9s cubic-bezier(.2,.8,.2,1);
+    background-image:var(--img);background-size:cover;background-position:center;filter:brightness(.95) saturate(1.05)
+  }
+  .overlay.on .overlay-bg{clip-path:circle(150vmax at var(--cx,50%) var(--cy,50%))}
+  .overlay-sheet{
+    position:absolute;left:50%;bottom:4vh;translate:-50% 0;width:min(900px,92vw);
+    background:rgba(255,255,255,.86);backdrop-filter:blur(8px) saturate(1.02);
+    border:1px solid rgba(0,0,0,.08);border-radius:18px;padding:16px 18px;box-shadow:0 20px 60px rgba(0,0,0,.25)
+  }
+  .sheet-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .sheet-name{font-family:"Bebas Neue",system-ui,sans-serif;font-size:clamp(30px,4vw,56px)}
+  .sheet-role{font-weight:900;color:var(--brand)}
+  .sheet-note{color:#2c2b29;margin-top:6px;max-width:78ch}
+  .close-btn{position:absolute;top:14px;right:14px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.9);border:0;cursor:pointer;
+    box-shadow:0 6px 16px rgba(0,0,0,.18)}
+  .close-btn:before,.close-btn:after{content:"";position:absolute;inset:50% auto auto 50%;width:20px;height:2px;background:#111;translate:-50% -50%}
+  .close-btn:before{rotate:45deg}.close-btn:after{rotate:-45deg}
+
+  /* no-JS fallback */
+  body:not(.js-ready) .reveal{opacity:1!important;transform:none!important;filter:none!important}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-illus" aria-hidden="true">
+    <svg viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="rg" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#ffffff" stop-opacity=".65"/><stop offset="60%" stop-color="#ffffff" stop-opacity=".0"/></radialGradient>
+      </defs>
+      <rect x="0" y="0" width="1200" height="700" fill="url(#rg)"/>
+      <g stroke="#222" stroke-width="6" opacity=".55">
+        <circle cx="930" cy="300" r="220"/><circle cx="930" cy="300" r="170"/><circle cx="930" cy="300" r="120"/><circle cx="930" cy="300" r="70"/>
+      </g>
+      <path id="squig" d="M150,470 C260,520 330,470 410,420 S560,330 640,420 S800,560 940,440"
+            stroke="#0e7a61" stroke-width="10" stroke-linecap="round" fill="none"
+            stroke-dasharray="1400" stroke-dashoffset="1400"></path>
+      <script>
+        (function(){const p=document.getElementById('squig');if(!p)return;let off=1400;function t(){off-=18;if(off<0)off=0;p.setAttribute('stroke-dashoffset',off);if(off>0)requestAnimationFrame(t)}requestAnimationFrame(t)})();
+      </script>
+    </svg>
+  </div>
+  <div class="hero-inner">
+    <div class="kicker">Meet the Ayanant Crew</div>
+    <h1 class="headline">Creators, doers & world-class problem solvers.</h1>
+    <p class="tagline">A quirky tribe of operators building with heart and hustle. Scroll to meet us </p>
+  </div>
+</section>
+<section id="gamusa-road"> <style> /* Assamese Gamusa "road" — uses your real Gamusa artwork as a repeating strip */ /* 🔁 Replace the example URL below with your ONLINE image link (PNG/JPG/SVG) of the pattern */ #gamusa-road{ --img: url("static/gamu.jpeg"); }
+#gamusa-road{position:relative;margin:0;padding:0}
+#gamusa-road .lane{
+  position:relative; width:100%; height:56px; overflow:hidden;
+  /* red rails like woven borders */
+  background:
+    linear-gradient(#b30000,#b30000) top/100% 3px no-repeat,
+    linear-gradient(#b30000,#b30000) bottom/100% 3px no-repeat,
+    #fff;
+  box-shadow: inset 0 8px 16px rgba(0,0,0,.04), inset 0 -8px 16px rgba(0,0,0,.04);
+}
+
+/* The moving Gamusa artwork */
+#gamusa-road .lane::after{
+  content:""; position:absolute; left:0; right:0; top:3px; bottom:3px;
+  background-image: var(--img);
+  background-repeat: repeat-x;        /* continuous like a road */
+  background-position: 0 50%;
+  background-size: auto 100%;         /* scale image height to fit strip */
+  animation: gamusa-move 12s linear infinite;
+  /* optional subtle fabric texture overlay */
+  mix-blend-mode: normal;
+}
+
+/* gentle edge fade so the loop feels seamless on some images */
+#gamusa-road .lane::before{
+  content:""; position:absolute; inset:3px 0;
+  pointer-events:none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  background: rgba(255,255,255,.0);
+}
+
+@keyframes gamusa-move{
+  from { background-position: 0 50%; }
+  to   { background-position: -1200px 50%; } /* adjust speed by changing distance/time */
+}
+
+/* Slimmer on mobile if you want */
+@media (max-width:720px){
+  #gamusa-road .lane{ height:44px; }
+}
+
+</style> <!-- Moving Gamusa road (change --img in the style above to your actual online link) --> <div class="lane" aria-hidden="true"></div> </section>
+
+</style> <!-- The moving Gamusa "road" --> <div class="track" aria-hidden="true"></div> </section>
+<section class="team-wrap">
+  <div class="team-grid" id="teamGrid">
+    {% set team = [
+      {"name":"MR PARAG BORUAH","role":"Managing Director","img":url_for('static', filename='paragsir.jpg'), "note":"Committed To Excellence.(MD)"},
+      {"name":"MANASH","role":"Operations Lead","img":url_for('static', filename='manshda.jpg'), "note":"Vision. Value. Victory.(CEO)"},
+      {"name":"UPASANA","role":"People & Culture","img":url_for('static', filename='upasana01.jpg'), "note":"Brain Behind Beauty.(GRAPHICS DESIGNER)."},
+      {"name":"RAHUL","role":"ASSOCIATE IT","img":url_for('static', filename='Rahul.jpg'), "note":"The Debugging Legend Returns.(The Programmer)"},
+      {"name":"RUHUL","role":"Creative Ops","img":url_for('static', filename='ruhul1.jpg'), "note":"Pitch. Polish. Profit.(Executive-Marketing)"},
+      {"name":"BISHAL","role":"Content","img":url_for('static', filename='vishal01.jpg'), "note":"Counted. Checked. Clear.(Accountant)"},
+      {"name":"UTPAL","role":"Product","img":url_for('static', filename='utpal.jpg'), "note":"Your Office Superhero.(Office Assistant)"},
+      {"name":"KANAKLATA","role":"Media","img":url_for('static', filename='team/kanaklata.jpg'), "note":"Engage, Inspirem sale.(Sales Executive)"},
+      {"name":"JHARNA","role":"Intern – Creative","img":url_for('static', filename='jharna.jpg'), "note":"Smiles Create Sales.(Sales Executive)"},
+      {"name":"MANMITA","role":"Engineering","img":url_for('static', filename='manmita1.jpg'), "note":"Sell, Smile, Shine.(Sales Executive)"},
+    ] %}
+    {% for p in team %}
+    <div class="shard reveal"
+         data-img="url('{{ p.img }}')"
+         data-name="{{ p.name }}"
+         data-role="{{ p.role }}"
+         data-note="{{ p.note }}">
+      <div class="tile" tabindex="0">
+        <div class="ph"><img src="{{ p.img }}" alt="{{ p.name }} — {{ p.role }}"></div>
+        <div class="flip">
+          <div class="flip-tag">{{ p.note }}</div>
+        </div>
+      </div>
+      <div class="name">{{ p.name }}</div>
+      <div class="tag">{{ p.note }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="overlay-bg" id="overlayBg"></div>
+  <button class="close-btn" id="overlayClose" aria-label="Close"></button>
+  <div class="overlay-sheet" id="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-row">
+      <div class="sheet-name" id="sheetName">Name</div>
+      <div class="sheet-role" id="sheetRole">Role</div>
+    </div>
+    <p class="sheet-note" id="sheetNote"></p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>document.body.classList.add('js-ready');</script>
+<script>
+(function(){
+  /* reveal */
+  const r=[...document.querySelectorAll('.reveal')];
+  if('IntersectionObserver'in window){
+    const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.2});
+    r.forEach(el=>io.observe(el));
+  }else{r.forEach(el=>el.classList.add('in'));}
+
+  /* desktop: click opens overlay; hover effect handled by CSS */
+  const shards=[...document.querySelectorAll('.shard')];
+  shards.forEach(s=>{
+    const tile=s.querySelector('.tile');
+    tile.addEventListener('click',e=>{ openOverlay(s,e); });
+    // keep keyboard support for accessibility
+    tile.addEventListener('keydown',e=>{
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openOverlay(s,e); }
+    });
+    // optional: double-click anywhere on the shard also opens overlay
+    s.addEventListener('dblclick',e=>openOverlay(s,e));
+  });
+
+  /* circle roll-out overlay */
+  const overlay=document.getElementById('overlay');
+  const bg=document.getElementById('overlayBg');
+  const btnX=document.getElementById('overlayClose');
+  const sName=document.getElementById('sheetName');
+  const sRole=document.getElementById('sheetRole');
+  const sNote=document.getElementById('sheetNote');
+
+  function openOverlay(card,ev){
+    const r=card.getBoundingClientRect();
+    const cx=(ev?.clientX ?? (r.left+r.width/2));
+    const cy=(ev?.clientY ?? (r.top+r.height/2));
+    bg.style.setProperty('--cx',cx+'px');
+    bg.style.setProperty('--cy',cy+'px');
+    bg.style.setProperty('--img',card.dataset.img);
+    sName.textContent=card.dataset.name||'';
+    sRole.textContent=card.dataset.role||'';
+    sNote.textContent=card.dataset.note||'';
+    overlay.classList.add('on'); overlay.setAttribute('aria-hidden','false');
+    document.documentElement.style.overflow='hidden'; document.body.style.overflow='hidden';
+  }
+  function closeOverlay(){
+    overlay.classList.remove('on'); overlay.setAttribute('aria-hidden','true');
+    document.documentElement.style.overflow=''; document.body.style.overflow='';
+  }
+  btnX.addEventListener('click',closeOverlay);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closeOverlay()});
+  window.addEventListener('keydown',e=>{if(e.key==='Escape')closeOverlay()});
+})();
+</script>
+{% endblock %}

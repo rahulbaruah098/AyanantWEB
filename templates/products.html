@@ -1,0 +1,435 @@
+{% extends "base.html" %}
+{% block title %}Ayanant – Best Sellers{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* ---- Fonts (scoped load for this section) ---- */
+  @font-face {
+    font-family: "BebasNeuePro";
+    src: url("https://ext.same-assets.com/4030929371/3634595300.woff2") format("woff2");
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "BebasNeuePro";
+    src: url("https://ext.same-assets.com/4030929371/3416559219.woff2") format("woff2");
+    font-weight: 500; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "BebasNeuePro";
+    src: url("https://ext.same-assets.com/4030929371/2931186222.woff2") format("woff2");
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+
+  /* ---- Theme tokens (scoped to #tmg-best-sellers) ---- */
+  #tmg-best-sellers{
+    --bg: #f6f4ed;
+    --ink: #37392f;
+    --muted: #988e87;
+    --red: #b33f36;
+
+    --radius: 14px;
+    --maxw: 1200px;
+    --shadow: 0 10px 30px rgba(0,0,0,0.08);
+
+    color: var(--ink);
+    background: var(--bg);
+  }
+
+  /* ---- Layout ---- */
+  #tmg-best-sellers .tmg-container{
+    width: min(100%, var(--maxw));
+    margin-inline: auto;
+    padding-inline: clamp(16px, 4vw, 28px);
+  }
+  #tmg-best-sellers .tmg-section{
+    padding: clamp(36px, 6vw, 72px) 0;
+    position: relative;
+    overflow: clip;
+  }
+
+  /* ---- Header ---- */
+  #tmg-best-sellers .tmg-header{
+    display: grid;
+    gap: 10px;
+    margin-bottom: clamp(18px, 2.8vw, 28px);
+  }
+  #tmg-best-sellers .tmg-title{
+    font-family: "BebasNeuePro", ui-sans-serif, system-ui;
+    font-size: clamp(28px, 5.6vw, 64px);
+    letter-spacing: 1px;
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+  #tmg-best-sellers .tmg-sub{
+    color: var(--muted);
+    max-width: 58ch;
+    font-size: 15px;
+  }
+  #tmg-best-sellers .tmg-eyebrow{
+    display: inline-flex; align-items: center; gap: 10px;
+    font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted); font-size: 13px;
+  }
+  #tmg-best-sellers .tmg-eyebrow::before,
+  #tmg-best-sellers .tmg-eyebrow::after{
+    content: ""; display: block; width: 20px; height: 2px;
+    background: currentColor; opacity: 0.3;
+  }
+
+  /* ---- Cards ---- */
+  #tmg-best-sellers .tmg-cards{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(14px, 2.2vw, 22px);
+  }
+  #tmg-best-sellers .tmg-card{
+    background: #fff;
+    border-radius: var(--radius);
+    overflow: clip;
+    border: 1px solid rgba(0,0,0,.06);
+    box-shadow:var(--shadow);
+    display: grid; grid-template-rows: auto 1fr;
+    transform: translateZ(0);
+  }
+  #tmg-best-sellers .tmg-media{
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    display:flex; align-items:center; justify-content:center;
+    padding: 18px;
+    background: #fff;
+  }
+  #tmg-best-sellers .tmg-media img{
+    width: 100%; height: 100%;
+    object-fit: contain; object-position: center;
+    transition: transform .45s ease, filter .45s ease;
+    display: block;
+  }
+  #tmg-best-sellers .tmg-card:hover .tmg-media img{ transform: scale(1.03); }
+  #tmg-best-sellers .tmg-body{ padding: 16px 16px 18px; display:grid; gap:8px; }
+  #tmg-best-sellers .tmg-kicker{
+    color: var(--red); font-weight: 900; letter-spacing: .12em;
+    text-transform: uppercase; font-size: 11px;
+  }
+  #tmg-best-sellers .tmg-card-title{
+    font-family: "BebasNeuePro", ui-sans-serif, system-ui;
+    font-size: clamp(22px, 3vw, 30px); letter-spacing: .7px; line-height: 1;
+    text-transform: uppercase;
+  }
+  #tmg-best-sellers .tmg-desc{ color: var(--muted); font-size: 14px; }
+
+  /* ---- CTA (if added later) ---- */
+  #tmg-best-sellers .tmg-actions{ margin-top:12px; display:flex; justify-content:center; }
+  #tmg-best-sellers .tmg-btn{
+    --bgc: var(--red); --bgh: #9e352d;
+    background: var(--bgc); color:#fff;
+    padding:12px 18px; border-radius:999px; border:0;
+    box-shadow:0 6px 16px rgba(179,63,54,.28);
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    font-weight:800; text-transform:uppercase; letter-spacing:.04em;
+    transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+    cursor:pointer; text-decoration:none;
+  }
+  #tmg-best-sellers .tmg-btn:hover{ background:var(--bgh); transform:translateY(-1px); box-shadow:0 10px 20px rgba(179,63,54,.30); }
+  #tmg-best-sellers .tmg-btn:active{ transform:translateY(0); }
+
+  /* ---- Reveal ---- */
+  #tmg-best-sellers .tmg-reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+  #tmg-best-sellers .tmg-reveal.tmg-in{ opacity:1; transform:translateY(0); }
+
+  /* ---- Assamese swap micro-anim ---- */
+  #tmg-best-sellers .tmg-swap{ display:inline-block; transition:opacity .42s ease, transform .42s ease; will-change:opacity,transform; }
+  #tmg-best-sellers .tmg-out{ opacity:.0; transform:translateY(6px); }
+  #tmg-best-sellers .tmg-in{  opacity:1;  transform:translateY(0); }
+
+  /* ---- No-JS fallback so content is visible if scripts don't run ---- */
+  body:not(.js-ready) #tmg-best-sellers .tmg-reveal{
+    opacity:1 !important; transform:none !important;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 1024px){ #tmg-best-sellers .tmg-cards{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 720px){ #tmg-best-sellers .tmg-cards{ grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+
+<section id="tmg-best-sellers" aria-labelledby="tmg-best-sellers-title">
+  <div class="tmg-section">
+    <div class="tmg-container">
+      <header class="tmg-header tmg-reveal">
+        <div class="tmg-eyebrow" aria-hidden="true">
+          <span class="tmg-swap" data-en="What everyone’s talking about" data-as="সকলোয়ে কি কথা পাতিছে">What everyone’s talking about</span>
+        </div>
+        <h2 id="tmg-best-sellers-title" class="tmg-title">
+          <span class="tmg-swap" data-en="Ne-Fresh's Best Seller" data-as="এন ই-ফ্ৰেছ ৰ বেষ্ট-ছেলাৰ">Ne-Locals's Best Seller</span>
+        </h2>
+        <p class="tmg-sub">
+          <span class="tmg-swap" data-en="Assam’s Trusted Taste & Treasures — Loved by Every Home." data-as="অসমৰ ভৰসাৰ ৰুচি আৰু সম্পদ — প্ৰতিটো ঘৰৰ প্ৰিয়।">Assam’s Trusted Taste & Treasures — Loved by Every Home.</span>
+        </p>
+      </header>
+
+      <div class="tmg-cards" role="list">
+        <!-- Mustard Oil -->
+        <article class="tmg-card tmg-reveal" role="listitem">
+          <div class="tmg-media">
+            <img loading="lazy" alt="Mustard Oil"
+                 src="{{ url_for('static', filename='mustard_oil.png') }}" width="800" height="600" />
+          </div>
+          <div class="tmg-body">
+            <div class="tmg-kicker">Our #1 best seller</div>
+            <h3 class="tmg-card-title">Mustard Oil</h3>
+            <p class="tmg-desc"></p>
+          </div>
+        </article>
+
+        <!-- Black Pepper -->
+        <article class="tmg-card tmg-reveal" role="listitem">
+          <div class="tmg-media">
+            <img loading="lazy" alt="Black Pepper"
+                 src="{{ url_for('static', filename='black_pepper.png') }}" width="800" height="600" />
+          </div>
+        <div class="tmg-body">
+            <div class="tmg-kicker">Hot & Spicy</div>
+            <h3 class="tmg-card-title">Black Pepper</h3>
+            <p class="tmg-desc"></p>
+          </div>
+        </article>
+
+        <!-- Cashew Nuts -->
+        <article class="tmg-card tmg-reveal" role="listitem">
+          <div class="tmg-media">
+            <img loading="lazy" alt="Cashew Nuts"
+                 src="{{ url_for('static', filename='cashew.jpg') }}" width="800" height="600" />
+          </div>
+          <div class="tmg-body">
+            <div class="tmg-kicker">Tasty & Devine and Healthy</div>
+            <h3 class="tmg-card-title">Cashew Nuts</h3>
+            <p class="tmg-desc"></p>
+          </div>
+        </article>
+
+          <article class="tmg-card tmg-reveal" role="listitem">
+          <div class="tmg-media">
+            <img loading="lazy" alt="Black Pepper"
+                 src="{{ url_for('static', filename='sirarakhong.png') }}" width="800" height="600" />
+          </div>
+        <div class="tmg-body">
+            <div class="tmg-kicker">Hot & Spicy</div>
+            <h3 class="tmg-card-title">Sirarakhong</h3>
+            <p class="tmg-desc"></p>
+          </div>
+        </article>
+
+          <article class="tmg-card tmg-reveal" role="listitem">
+          <div class="tmg-media">
+            <img loading="lazy" alt="Black Pepper"
+                 src="{{ url_for('static', filename='blackrice.png') }}" width="800" height="600" />
+          </div>
+        <div class="tmg-body">
+            <div class="tmg-kicker">Hot & Spicy</div>
+            <h3 class="tmg-card-title">Black-Rice</h3>
+            <p class="tmg-desc"></p>
+          </div>
+        </article>
+
+        <article class="tmg-card tmg-reveal" role="listitem">
+          <div class="tmg-media">
+            <img loading="lazy" alt="Black Pepper"
+                 src="{{ url_for('static', filename='millet.png') }}" width="800" height="600" />
+          </div>
+        <div class="tmg-body">
+            <div class="tmg-kicker">Hot & Spicy</div>
+            <h3 class="tmg-card-title">Foxtail Millet</h3>
+            <p class="tmg-desc"></p>
+          </div>
+        </article>
+
+          </div>
+      </div>
+    </div>
+  </div>
+
+
+</section>
+
+<section id="back-home-section">
+  <style>
+    #back-home-section{
+      background:var(--bg,#f6f4ed);
+      color:var(--ink,#37392f);
+      text-align:center;
+      padding:clamp(40px,6vw,80px) clamp(16px,4vw,28px);
+      position:relative;
+      z-index:10;
+    }
+
+    #back-home-section .wrap{
+      width:min(100%,1200px);
+      margin-inline:auto;
+    }
+
+    #back-home-section .eyebrow{
+      display:inline-flex; align-items:center; gap:10px;
+      font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+      color:var(--muted,#988e87); font-size:12px; margin-bottom:10px;
+    }
+    #back-home-section .eyebrow::before,
+    #back-home-section .eyebrow::after{
+      content:""; width:20px; height:2px; background:currentColor; opacity:.3;
+    }
+
+    #back-home-section .title{
+      font-family:"Bebas Neue",Inter,ui-sans-serif;
+      font-size:clamp(36px,6vw,68px);
+      letter-spacing:1px;
+      line-height:.95;
+      text-transform:uppercase;
+      margin:0 0 24px;
+      color:var(--ink,#37392f);
+    }
+
+    #back-home-section .back-home{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:#fff;
+      font-weight:800;
+      letter-spacing:.4px;
+      background:var(--red,#b33f36);
+      border-radius:999px;
+      padding:14px 26px;
+      box-shadow:0 6px 16px rgba(179,63,54,.25);
+      transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    #back-home-section .back-home:hover{
+      transform:translateY(-2px);
+      box-shadow:0 10px 22px rgba(179,63,54,.35);
+    }
+    #back-home-section .back-home:active{
+      transform:none;
+      box-shadow:0 6px 14px rgba(179,63,54,.25);
+    }
+    #back-home-section .back-home svg{
+      stroke:#fff;
+      width:20px;
+      height:20px;
+      transition:transform .25s ease;
+    }
+    #back-home-section .back-home:hover svg{
+      transform:translateX(-3px);
+    }
+
+    /* Reveal animation (matches site pattern) */
+    #back-home-section .reveal{
+      opacity:0;
+      transform:translateY(16px);
+      transition:opacity .6s ease, transform .6s ease;
+    }
+    #back-home-section .in{
+      opacity:1;
+      transform:none;
+    }
+  </style>
+
+  <div class="wrap">
+    <header class="reveal">
+      <div class="eyebrow" aria-hidden="true">Navigation</div>
+      <h2 class="title">Back&nbsp;Home</h2>
+    </header>
+
+    <a href="/" class="back-home magnet reveal" aria-label="Back to Home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      <span>Go&nbsp;Back&nbsp;Home</span>
+    </a>
+  </div>
+
+  <script>
+    // Reveal-on-scroll (matches existing observer)
+    (function(){
+      const root=document.getElementById('back-home-section');
+      if(!root) return;
+      const els=[...root.querySelectorAll('.reveal')];
+      if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('in')); return; }
+      const io=new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            e.target.classList.add('in');
+            io.unobserve(e.target);
+          }
+        });
+      },{threshold:.15});
+      els.forEach(el=>io.observe(el));
+    })();
+  </script>
+</section>
+
+{% endblock %}
+
+{% block scripts_extra %}
+<!-- mark JS ready so the no-JS fallback disables -->
+<script>document.body.classList.add('js-ready');</script>
+
+<script>
+  // Reveal-on-scroll (scoped)
+  (function(){
+    const root = document.getElementById('tmg-best-sellers');
+    if (!root) return;
+    const els = Array.from(root.querySelectorAll('.tmg-reveal'));
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(el => el.classList.add('tmg-in'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('tmg-in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    els.forEach(el => io.observe(el));
+  })();
+</script>
+
+<script>
+  // English <-> Assamese swap for eyebrow/title/subtitle (scoped)
+  (function(){
+    const root = document.getElementById('tmg-best-sellers');
+    if (!root) return;
+    const swaps = Array.from(root.querySelectorAll('.tmg-swap'));
+    if (!swaps.length) return;
+
+    const state = swaps.map(() => false);
+    let idx = 0;
+
+    function animateSwap(el, text){
+      el.classList.add('tmg-out');
+      setTimeout(() => {
+        el.textContent = text;
+        el.classList.remove('tmg-out');
+        el.classList.add('tmg-in');
+        setTimeout(() => el.classList.remove('tmg-in'), 420);
+      }, 220);
+    }
+
+    function step(){
+      const el = swaps[idx];
+      const toAs = !state[idx];
+      const text = toAs ? el.getAttribute('data-as') : el.getAttribute('data-en');
+      if (text) animateSwap(el, text);
+      state[idx] = toAs;
+      idx = (idx + 1) % swaps.length;
+    }
+
+    setInterval(step, 2400);
+  })();
+</script>
+{% endblock %}

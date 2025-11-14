@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+{% block title %}Ayanant • Gallery{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* ===== Matches your site’s original tokens/feel ===== */
+  #gallery{
+    --bg: var(--cream, #f4ede4);
+    --ink: var(--ink, #1c1b1a);
+    --muted: var(--muted, #6b6b6b);
+    --radius: 16px;
+    --maxw: 1200px;
+    background: var(--bg); color: var(--ink);
+    position: relative;
+  }
+  #gallery .wrap{
+    width: min(100%, var(--maxw));
+    margin-inline: auto;
+    padding: clamp(34px,6vw,72px) clamp(16px,4vw,28px);
+  }
+
+  /* Header (unchanged style) */
+  #gallery .eyebrow{
+    display:inline-flex; align-items:center; gap:10px;
+    font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); font-size:12px; margin-bottom:8px;
+  }
+  #gallery .eyebrow::before, #gallery .eyebrow::after{
+    content:""; width:20px; height:2px; background:currentColor; opacity:.3;
+  }
+  #gallery .title{
+    font-family:"Bebas Neue", Inter, ui-sans-serif;
+    font-size:clamp(32px,6vw,68px); letter-spacing:1px;
+    line-height:.95; text-transform:uppercase;
+    margin:0 0 8px;
+  }
+  #gallery .sub{ color:var(--muted); max-width:60ch; margin:0 0 18px; }
+
+  /* ===== Grid (small cards) ===== */
+  #gallery .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap:14px;
+  }
+  #gallery .g-item{
+    position:relative; overflow:hidden; background:#fff;
+    border:1px solid rgba(0,0,0,.10);
+    border-radius: var(--radius);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    cursor: zoom-in;          /* click to enlarge */
+  }
+  #gallery .g-media{
+    aspect-ratio: 4 / 3;
+    display:grid; place-items:center; overflow:hidden; background:#fff;
+  }
+  #gallery .g-media img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition: transform .35s ease;
+  }
+  /* keep the subtle hover lift only (no lightbox on hover) */
+  #gallery .g-item:hover{ transform:translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.08); border-color:#111; }
+  #gallery .g-item:hover .g-media img{ transform:scale(1.04); }
+
+  /* ===== Overlay (modal, not true fullscreen) ===== */
+  #gOverlay{
+    position:fixed; inset:0; z-index:2000; display:none;
+    place-items:center; background:rgba(0,0,0,.65);
+    backdrop-filter: blur(2px);
+  }
+  #gOverlay.open{ display:grid; }
+  #gOverlay .frame{
+    position:relative; background:#000;
+    max-width:min(94vw, 1600px); max-height:94vh; overflow:hidden;
+    border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.35);
+  }
+  #gOverlay img{
+    display:block; max-width:100%; max-height:94vh; object-fit:contain; background:#000;
+  }
+  #gClose{
+    position:absolute; top:10px; right:10px;
+    width:42px; height:42px; border:0; border-radius:10px;
+    background:rgba(255,255,255,.9); cursor:pointer; display:grid; place-items:center;
+  }
+  #gClose:before,#gClose:after{ content:""; position:absolute; width:22px; height:2px; background:#111; border-radius:2px; }
+  #gClose:before{ transform:rotate(45deg); }  #gClose:after{ transform:rotate(-45deg); }
+</style>
+{% endblock %}
+
+{% block content %}
+<section id="gallery" aria-labelledby="gallery-title">
+  <div class="wrap">
+    <header>
+      <div class="eyebrow" aria-hidden="true">Our Moments</div>
+      <h1 id="gallery-title" class="title">Gallery</h1>
+      <p class="sub">Click any image to view it larger.</p>
+    </header>
+
+    <!-- Add/remove items freely -->
+    <div class="grid" id="galleryGrid">
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/01.jpg') }}" alt="Gallery image 01">
+        </div>
+      </figure>
+        <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/02.jpg') }}" alt="Gallery image 01">
+        </div>
+      </figure>
+        <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/03.jpg') }}" alt="Gallery image 01">
+        </div>
+      </figure>
+      <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery1.jpg') }}" alt="Gallery image 01">
+        </div>
+      </figure>
+      <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery2.jpg') }}" alt="Gallery image 02">
+        </div>
+      </figure>
+      <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery3.jpg') }}" alt="Gallery image 03">
+        </div>
+      </figure>
+      <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery4.jpg') }}" alt="Gallery image 04">
+        </div>
+      </figure>
+      <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery5.jpg') }}" alt="Gallery image 05">
+        </div>
+      </figure>
+      <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery6.jpg') }}" alt="Gallery image 06">
+        </div>
+      </figure>
+      <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery8.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery9.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery10.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery11.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery12.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery13.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery14.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery15.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery16.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery17.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery18.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery19.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery20.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery21.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery22.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery23.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery24.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery25.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery26.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery27.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery28.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery29.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery30.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery31.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery32.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery33.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery34.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery35.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery36.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery37.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery38.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery39.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+            <figure class="g-item">
+        <div class="g-media">
+          <img loading="lazy" src="{{ url_for('static', filename='gallery/gallery40.jpg') }}" alt="Gallery image 07">
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- Overlay modal (not fullscreen API) -->
+<div id="gOverlay" aria-hidden="true">
+  <div class="frame">
+    <button id="gClose" aria-label="Close"></button>
+    <img id="gFull" src="" alt="">
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+window.addEventListener('DOMContentLoaded', function(){
+  const grid    = document.getElementById('galleryGrid');
+  const overlay = document.getElementById('gOverlay');
+  const fullImg = document.getElementById('gFull');
+  const close   = document.getElementById('gClose');
+
+  if(!grid || !overlay || !fullImg || !close) return;
+
+  function openWith(src, alt){
+    fullImg.src = src;
+    fullImg.alt = alt || 'Full image';
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeOverlay(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    // small delay so fade feels natural if you add transitions later
+    setTimeout(()=>{ fullImg.src = ''; }, 120);
+  }
+
+  // CLICK ONLY (no hover)
+  grid.addEventListener('click', (e)=>{
+    const img = e.target.closest('.g-media img');
+    if(!img) return;
+    openWith(img.currentSrc || img.src, img.alt);
+  });
+
+  // Close actions
+  close.addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeOverlay(); });
+  window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeOverlay(); });
+});
+</script>
+{% endblock %}
